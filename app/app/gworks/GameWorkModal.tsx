@@ -13,6 +13,7 @@ interface GameWorkModalProps {
     thumbnail_url?: string;
     features?: string;
     external_url?: string;
+    duration?: string;
     techs: string[];
     roles: string[];
     platforms: string[];
@@ -97,10 +98,15 @@ export default function GameWorkModal({ isOpen, onClose, work }: GameWorkModalPr
           {/* Right: Details */}
           <div className="lg:w-1/2 p-8 lg:p-12 lg:border-l border-white/5">
             <div className="mb-10">
-              <div className="flex items-center gap-2 mb-6">
+              <div className="flex items-center gap-1.5 mb-6">
                 <span className="px-3 py-1 bg-slate-800 text-slate-400 text-[10px] font-black uppercase tracking-widest rounded-full border border-white/5">
                   {work.development_type === 'solo' ? '個人開発' : work.development_type === 'team' ? 'チーム開発' : '業務実績'}
                 </span>
+                {work.duration && (
+                  <span className="px-3 py-1 bg-white/5 text-slate-400 text-[10px] font-black uppercase tracking-widest rounded-full border border-white/5">
+                    {work.duration}
+                  </span>
+                )}
               </div>
               <h2 className="text-2xl md:text-3xl font-black tracking-tighter text-white mb-6">{work.title}</h2>
               <p className="text-gray-400 leading-relaxed text-base">{work.description}</p>

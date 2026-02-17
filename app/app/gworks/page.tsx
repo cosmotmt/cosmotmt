@@ -6,7 +6,7 @@ export default async function GWorksPage() {
   const db = process.env.DB;
   if (!db) return <div>Database connection failed</div>;
 
-  // ゲーム実績と関連するタグ（技術、役割、プラットフォーム）をまとめて取得
+  // start_date と end_date を取得するように修正
   const { results } = await db.prepare(`
     SELECT 
       w.*,
@@ -17,24 +17,32 @@ export default async function GWorksPage() {
     ORDER BY w.created_at DESC
   `).all();
 
-  // GROUP_CONCAT で取得した文字列を配列に変換
-  const works = results.map((work: any) => ({
-    ...work,
-    techs: work.techs ? work.techs.split(',') : [],
-    roles: work.roles ? work.roles.split(',') : [],
-    platforms: work.platforms ? work.platforms.split(',') : [],
-  }));
+  const works = results.map((work: any) => {
+    // 開発期間の文字列を作成
+    let duration = "";
+    if (work.start_date && work.end_date) {
+      duration = `${work.start_date} 〜 ${work.end_date}`;
+    } else if (work.start_date) {
+      duration = `${work.start_date} 〜`;
+    }
+
+    return {
+      ...work,
+      duration, // 計算した期間をセット
+      techs: work.techs ? work.techs.split(',') : [],
+      roles: work.roles ? work.roles.split(',') : [],
+      platforms: work.platforms ? work.platforms.split(',') : [],
+    };
+  });
 
   return (
     <div className="min-h-screen pt-32 pb-24 px-6">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
         <div className="mb-16">
           <h1 className="text-3xl md:text-5xl font-black tracking-tighter mb-4 text-white">ゲーム作品</h1>
           <div className="h-1 w-20 bg-red-500 rounded-full"></div>
         </div>
 
-        {/* 作品リスト (Client Component) */}
         <GWorksList initialWorks={works} />
       </div>
     </div>
