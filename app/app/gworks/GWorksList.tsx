@@ -18,7 +18,6 @@ export default function GWorksList({ initialWorks }: GWorksListProps) {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    // Don't clear selectedWork immediately to avoid content disappearing during close animation
   };
 
   return (
@@ -43,12 +42,18 @@ export default function GWorksList({ initialWorks }: GWorksListProps) {
                 </div>
               )}
             </div>
-            <h2 className="text-xl font-bold group-hover:text-red-500 transition-colors mb-2">
-              {work.title}
-            </h2>
-            <p className="text-gray-500 text-sm line-clamp-2 leading-relaxed">
-              {work.description}
-            </p>
+            
+            <div className="flex flex-col gap-2">
+              <div>
+                {/* モーダルと同じカプセル型スタイルに統一 */}
+                <span className="px-3 py-1 bg-slate-800 text-slate-400 text-[10px] font-black uppercase tracking-widest rounded-full border border-white/5">
+                  {work.development_type === 'solo' ? '個人開発' : work.development_type === 'team' ? 'チーム開発' : '業務実績'}
+                </span>
+              </div>
+              <h2 className="text-xl font-bold text-white group-hover:text-red-500 transition-colors ml-1">
+                {work.title}
+              </h2>
+            </div>
           </div>
         ))}
       </div>
