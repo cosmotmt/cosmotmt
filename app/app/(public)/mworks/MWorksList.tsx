@@ -27,7 +27,8 @@ export default function MWorksList({ initialWorks }: MWorksListProps) {
                 : "bg-slate-900/40 border-white/5 hover:bg-white/5 hover:border-white/10"
             }`}
           >
-            <div className="relative w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden bg-slate-800 flex-shrink-0 shadow-lg">
+            {/* Thumbnail */}
+            <div className="relative w-14 h-14 md:w-20 md:h-20 rounded-xl overflow-hidden bg-slate-800 flex-shrink-0 shadow-lg">
               {work.thumbnail_url ? (
                 <img src={work.thumbnail_url} alt={work.title} className="w-full h-full object-cover" />
               ) : (
@@ -39,12 +40,14 @@ export default function MWorksList({ initialWorks }: MWorksListProps) {
               }`}>
                 {isCurrent && isPlaying ? (
                   <div className="relative w-full h-full flex items-center justify-center">
-                    <div className="flex gap-1 items-end h-4 group-hover:opacity-0 transition-opacity">
+                    {/* Bars animation - Hidden on mobile when playing to show pause icon instead, or just let them coexist */}
+                    <div className="flex gap-1 items-end h-4 opacity-0 md:opacity-100 md:group-hover:opacity-0 transition-opacity">
                       <div className="w-1 bg-red-500 animate-bounce" style={{ animationDuration: '0.5s' }}></div>
                       <div className="w-1 bg-red-500 animate-bounce" style={{ animationDuration: '0.8s' }}></div>
                       <div className="w-1 bg-red-500 animate-bounce" style={{ animationDuration: '0.6s' }}></div>
                     </div>
-                    <svg xmlns="http://www.w3.org/2000/svg" className="absolute h-8 w-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" fill="currentColor" viewBox="0 0 24 24">
+                    {/* Pause Icon - Always visible on mobile when playing */}
+                    <svg xmlns="http://www.w3.org/2000/svg" className="absolute h-8 w-8 text-white opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
                     </svg>
                   </div>
@@ -56,9 +59,10 @@ export default function MWorksList({ initialWorks }: MWorksListProps) {
               </div>
             </div>
 
+            {/* Info Content */}
             <div className="flex-1 min-w-0">
-              <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 mb-2">
-                <h3 className={`text-lg font-bold truncate transition-colors ${isCurrent ? "text-red-500" : "text-white"}`}>
+              <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 md:mb-2">
+                <h3 className={`text-base md:text-lg font-bold truncate transition-colors ${isCurrent ? "text-red-500" : "text-white"}`}>
                   {work.title}
                 </h3>
                 <div className="flex flex-wrap gap-1.5">
@@ -66,12 +70,12 @@ export default function MWorksList({ initialWorks }: MWorksListProps) {
                     <span key={g} className={metaTagClass}>{g}</span>
                   ))}
                   {work.duration && (
-                    <span className={metaTagClass}>{work.duration}</span>
+                    <span className={`hidden md:inline-block ${metaTagClass}`}>{work.duration}</span>
                   )}
                 </div>
               </div>
               
-              <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-6">
+              <div className="hidden md:flex flex-col md:flex-row md:items-center gap-3 md:gap-6">
                 <p className="text-slate-400 text-sm line-clamp-1 flex-1">{work.description}</p>
                 <div className="flex flex-wrap gap-2">
                   {work.roles.map((r: string) => (
@@ -81,7 +85,8 @@ export default function MWorksList({ initialWorks }: MWorksListProps) {
               </div>
             </div>
 
-            <div className="text-slate-500 text-xs font-mono w-12 text-right">
+            {/* Time */}
+            <div className="hidden md:block text-slate-500 text-xs font-mono w-12 text-right">
               {isCurrent ? formatTime(duration) : "--:--"}
             </div>
           </div>

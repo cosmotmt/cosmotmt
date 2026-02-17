@@ -98,7 +98,7 @@ export default async function Home() {
               <h3 className="text-2xl md:text-3xl font-black tracking-tight text-white">ゲーム作品</h3>
               <div className="h-1 w-12 bg-red-500 rounded-full mt-3"></div>
             </div>
-            <Link href="/gworks" className="text-[10px] md:text-xs font-black tracking-widest text-gray-500 hover:text-red-500 transition-colors uppercase">View All</Link>
+            <Link href="/gworks" className="text-[10px] md:text-xs font-black tracking-widest text-gray-500 hover:text-red-500 transition-colors uppercase">すべて見る</Link>
           </div>
           <GWorksList initialWorks={latestGWorks} />
         </div>
@@ -112,7 +112,7 @@ export default async function Home() {
               <h3 className="text-2xl md:text-3xl font-black tracking-tight text-white">音楽作品</h3>
               <div className="h-1 w-12 bg-red-500 rounded-full mt-3"></div>
             </div>
-            <Link href="/mworks" className="text-[10px] md:text-xs font-black tracking-widest text-gray-500 hover:text-red-500 transition-colors uppercase">View All</Link>
+            <Link href="/mworks" className="text-[10px] md:text-xs font-black tracking-widest text-gray-500 hover:text-red-500 transition-colors uppercase">すべて見る</Link>
           </div>
           <MWorksList initialWorks={latestMWorks} />
         </div>

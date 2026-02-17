@@ -13,8 +13,39 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "CosmoTmt Planet | Game & Music",
-  description: "The creative planet of CosmoTmt. Game Developer & Music Creator.",
+  title: {
+    default: "CosmoTmt Planet",
+    template: "%s | CosmoTmt Planet"
+  },
+  description: "ゲームエンジニア兼音楽クリエイター「CosmoTmt」のポートフォリオサイト。",
+  keywords: ["CosmoTmt", "ゲーム開発", "作曲", "BGM制作", "ポートフォリオ", "Unity", "ゲームエンジニア"],
+  authors: [{ name: "CosmoTmt" }],
+  openGraph: {
+    type: "website",
+    locale: "ja_JP",
+    url: "https://cosmotmt.jp",
+    siteName: "CosmoTmt Planet",
+    title: "CosmoTmt Planet",
+    description: "ゲームエンジニア兼音楽クリエイター「CosmoTmt」のポートフォリオサイト。",
+    images: [
+      {
+        url: "/og-image.webp",
+        width: 1200,
+        height: 630,
+        alt: "CosmoTmt Planet",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "CosmoTmt Planet",
+    description: "ゲームエンジニア兼音楽クリエイター「CosmoTmt」のポートフォリオサイト。",
+    creator: "@cosmotmt",
+    images: ["/og-image.webp"],
+  },
+  alternates: {
+    canonical: "https://cosmotmt.jp",
+  },
 };
 
 export default function RootLayout({
