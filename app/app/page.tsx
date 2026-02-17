@@ -70,7 +70,7 @@ export default async function Home() {
                   {work.thumbnail_url ? (
                     <img src={work.thumbnail_url} alt={work.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-slate-800 font-bold">No Image</div>
+                    <div className="w-full h-full flex items-center justify-center text-slate-500 font-bold tracking-widest text-xs uppercase">No Image</div>
                   )}
                 </div>
                 <h4 className="text-xl font-bold group-hover:text-red-500 transition-colors">{work.title}</h4>
@@ -99,7 +99,7 @@ export default async function Home() {
                   {work.thumbnail_url ? (
                     <img src={work.thumbnail_url} alt={work.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-slate-800 font-bold">No Cover</div>
+                    <div className="w-full h-full flex items-center justify-center text-slate-500 font-bold tracking-widest text-xs uppercase">No Cover</div>
                   )}
                 </div>
                 <h4 className="text-xl font-bold mb-2">{work.title}</h4>

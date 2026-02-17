@@ -28,16 +28,11 @@ export default async function GWorksPage() {
                 {work.thumbnail_url ? (
                   <img src={work.thumbnail_url} alt={work.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-slate-800 font-bold">No Image</div>
+                  <div className="w-full h-full flex items-center justify-center text-slate-500 font-bold tracking-widest text-xs uppercase">No Image</div>
                 )}
               </div>
               <h2 className="text-xl font-bold group-hover:text-red-500 transition-colors mb-2">{work.title}</h2>
               <p className="text-gray-500 text-sm line-clamp-2 leading-relaxed">{work.description}</p>
-              
-              {/* Tags Placeholder (将来的に技術タグとか出すのだ) */}
-              <div className="mt-4 flex flex-wrap gap-2">
-                {/* ここにタグが入るのだ */}
-              </div>
             </div>
           ))}
         </div>
