@@ -12,7 +12,7 @@ export default async function GWorksListPage() {
   }
 
   const db = process.env.DB;
-  if (!db) return <div className="p-8 text-red-500">データベースに接続できません。</div>;
+  if (!db) return <div className="p-8 text-red-500">Database connection failed</div>;
 
   const works = await db
     .prepare("SELECT id, title, created_at FROM gworks ORDER BY created_at DESC")
@@ -21,7 +21,6 @@ export default async function GWorksListPage() {
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-8">
       <div className="max-w-3xl mx-auto">
-        {/* ヘッダー */}
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
             <span className="w-2 h-6 bg-sky-500 rounded-full"></span>
@@ -43,7 +42,6 @@ export default async function GWorksListPage() {
           </div>
         </div>
 
-        {/* リスト */}
         <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
           <ul className="divide-y divide-gray-200">
             {works.results.map((work) => (

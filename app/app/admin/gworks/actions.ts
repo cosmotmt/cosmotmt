@@ -5,43 +5,64 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
 /**
- * タグ（techs, roles, platforms）を処理し、IDの配列を返す
+ * Process tags and return an array of IDs.
  */
 async function getOrCreateTags(db: D1Database, table: "techs" | "roles" | "platforms", names: string[]): Promise<number[]> {
   const ids: number[] = [];
-  
   for (const name of names) {
     const trimmedName = name.trim();
     if (!trimmedName) continue;
 
-    let tag = await db
-      .prepare(`SELECT id FROM ${table} WHERE name = ?`)
-      .bind(trimmedName)
-      .first<{ id: number }>();
-
+    let tag = await db.prepare(`SELECT id FROM ${table} WHERE name = ?`).bind(trimmedName).first<{ id: number }>();
     if (!tag) {
-      const result = await db
-        .prepare(`INSERT INTO ${table} (name) VALUES (?)`)
-        .bind(trimmedName)
-        .run();
+      const result = await db.prepare(`INSERT INTO ${table} (name) VALUES (?)`).bind(trimmedName).run();
       tag = { id: Number(result.meta.last_row_id) };
     }
-    
     ids.push(tag.id);
   }
-  
   return ids;
 }
 
 /**
- * ゲーム実績の新規登録
+ * Update intermediate tables for tags.
  */
+async function updateTags(db: D1Database, gworkId: number, table: "techs" | "roles" | "platforms", names: string[]) {
+  const mapping = {
+    techs: { intermediate: "gwork_techs", idCol: "tech_id" },
+    roles: { intermediate: "gwork_roles", idCol: "role_id" },
+    platforms: { intermediate: "gwork_platforms", idCol: "platform_id" },
+  };
+  const { intermediate, idCol } = mapping[table];
+
+  await db.prepare(`DELETE FROM ${intermediate} WHERE gwork_id = ?`).bind(gworkId).run();
+  const tagIds = await getOrCreateTags(db, table, names);
+  for (const tagId of tagIds) {
+    await db.prepare(`INSERT INTO ${intermediate} (gwork_id, ${idCol}) VALUES (?, ?)`).bind(gworkId, tagId).run();
+  }
+}
+
+/**
+ * Delete a file from R2 storage.
+ */
+async function deleteFromR2(url: string | null) {
+  if (!url || !url.startsWith("/api/storage/")) return;
+  const fileName = url.replace("/api/storage/", "");
+  const bucket = process.env.R2 as R2Bucket;
+  if (bucket) {
+    try {
+      await bucket.delete(fileName);
+    } catch (err) {
+      console.error(`Failed to delete R2 file: ${fileName}`, err);
+    }
+  }
+}
+
 export async function createGWork(prevState: any, formData: FormData) {
   const cookieStore = await cookies();
-  if (!cookieStore.get("admin_session")) return { error: "認証が必要です。" };
+  if (!cookieStore.get("admin_session")) return { error: "Unauthorized" };
 
   const db = process.env.DB;
-  if (!db) return { error: "データベースに接続できません。" };
+  if (!db) return { error: "Database connection failed" };
 
   const title = formData.get("title") as string;
   const description = formData.get("description") as string;
@@ -56,56 +77,35 @@ export async function createGWork(prevState: any, formData: FormData) {
   const roleNames = (formData.get("roles") as string)?.split(",").filter(Boolean) || [];
   const platformNames = (formData.get("platform") as string)?.split(",").filter(Boolean) || [];
 
-  if (!title) return { error: "タイトルは必須です。" };
+  if (!title) return { error: "Title is required" };
 
   try {
-    // 1. 本体を保存 (platform カラムは削除済み)
     const result = await db
-      .prepare(
-        `INSERT INTO gworks (title, description, features, development_type, thumbnail_url, external_url, start_date, end_date) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
-      )
+      .prepare(`INSERT INTO gworks (title, description, features, development_type, thumbnail_url, external_url, start_date, end_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`)
       .bind(title, description, features, development_type, thumbnail_url, external_url, start_date || null, end_date || null)
       .run();
 
-    const gworkId = result.meta.last_row_id;
-
-    // 2. 技術タグの保存
-    const techIds = await getOrCreateTags(db, "techs", techNames);
-    for (const techId of techIds) {
-      await db.prepare("INSERT INTO gwork_techs (gwork_id, tech_id) VALUES (?, ?)").bind(gworkId, techId).run();
-    }
-
-    // 3. 役割タグの保存
-    const roleIds = await getOrCreateTags(db, "roles", roleNames);
-    for (const roleId of roleIds) {
-      await db.prepare("INSERT INTO gwork_roles (gwork_id, role_id) VALUES (?, ?)").bind(gworkId, roleId).run();
-    }
-
-    // 4. プラットフォームタグの保存
-    const platformIds = await getOrCreateTags(db, "platforms", platformNames);
-    for (const platformId of platformIds) {
-      await db.prepare("INSERT INTO gwork_platforms (gwork_id, platform_id) VALUES (?, ?)").bind(gworkId, platformId).run();
-    }
+    const gworkId = Number(result.meta.last_row_id);
+    await updateTags(db, gworkId, "techs", techNames);
+    await updateTags(db, gworkId, "roles", roleNames);
+    await updateTags(db, gworkId, "platforms", platformNames);
 
     revalidatePath("/admin/gworks");
   } catch (err) {
     console.error("Create GWork error:", err);
-    return { error: "登録中にエラーが発生しました。" };
+    return { error: "Failed to create record" };
   }
-
   redirect("/admin/gworks");
 }
 
-/**
- * ゲーム実績の更新
- */
 export async function updateGWork(id: number, prevState: any, formData: FormData) {
   const cookieStore = await cookies();
-  if (!cookieStore.get("admin_session")) return { error: "認証が必要です。" };
+  if (!cookieStore.get("admin_session")) return { error: "Unauthorized" };
 
   const db = process.env.DB;
-  if (!db) return { error: "データベースに接続できません。" };
+  if (!db) return { error: "Database connection failed" };
+
+  const oldWork = await db.prepare("SELECT thumbnail_url FROM gworks WHERE id = ?").bind(id).first<{ thumbnail_url: string }>();
 
   const title = formData.get("title") as string;
   const description = formData.get("description") as string;
@@ -120,63 +120,44 @@ export async function updateGWork(id: number, prevState: any, formData: FormData
   const roleNames = (formData.get("roles") as string)?.split(",").filter(Boolean) || [];
   const platformNames = (formData.get("platform") as string)?.split(",").filter(Boolean) || [];
 
-  if (!title) return { error: "タイトルは必須です。" };
+  if (!title) return { error: "Title is required" };
 
   try {
-    // 1. 本体を更新
     await db
-      .prepare(
-        `UPDATE gworks SET title = ?, description = ?, features = ?, development_type = ?, thumbnail_url = ?, external_url = ?, start_date = ?, end_date = ? 
-         WHERE id = ?`
-      )
+      .prepare(`UPDATE gworks SET title = ?, description = ?, features = ?, development_type = ?, thumbnail_url = ?, external_url = ?, start_date = ?, end_date = ? WHERE id = ?`)
       .bind(title, description, features, development_type, thumbnail_url, external_url, start_date || null, end_date || null, id)
       .run();
 
-    // 2. 技術タグの更新
-    await db.prepare("DELETE FROM gwork_techs WHERE gwork_id = ?").bind(id).run();
-    const techIds = await getOrCreateTags(db, "techs", techNames);
-    for (const techId of techIds) {
-      await db.prepare("INSERT INTO gwork_techs (gwork_id, tech_id) VALUES (?, ?)").bind(id, techId).run();
+    if (oldWork && oldWork.thumbnail_url && oldWork.thumbnail_url !== thumbnail_url) {
+      await deleteFromR2(oldWork.thumbnail_url);
     }
 
-    // 3. 役割タグの更新
-    await db.prepare("DELETE FROM gwork_roles WHERE gwork_id = ?").bind(id).run();
-    const roleIds = await getOrCreateTags(db, "roles", roleNames);
-    for (const roleId of roleIds) {
-      await db.prepare("INSERT INTO gwork_roles (gwork_id, role_id) VALUES (?, ?)").bind(id, roleId).run();
-    }
-
-    // 4. プラットフォームタグの更新
-    await db.prepare("DELETE FROM gwork_platforms WHERE gwork_id = ?").bind(id).run();
-    const platformIds = await getOrCreateTags(db, "platforms", platformNames);
-    for (const platformId of platformIds) {
-      await db.prepare("INSERT INTO gwork_platforms (gwork_id, platform_id) VALUES (?, ?)").bind(id, platformId).run();
-    }
+    await updateTags(db, id, "techs", techNames);
+    await updateTags(db, id, "roles", roleNames);
+    await updateTags(db, id, "platforms", platformNames);
 
     revalidatePath("/admin/gworks");
   } catch (err) {
     console.error("Update GWork error:", err);
-    return { error: "更新中にエラーが発生しました。" };
+    return { error: "Failed to update record" };
   }
-
   redirect("/admin/gworks");
 }
 
-/**
- * ゲーム実績の削除
- */
 export async function deleteGWork(id: number) {
   const cookieStore = await cookies();
-  if (!cookieStore.get("admin_session")) throw new Error("認証が必要です。");
+  if (!cookieStore.get("admin_session")) throw new Error("Unauthorized");
 
   const db = process.env.DB;
-  if (!db) throw new Error("データベースに接続できません。");
+  if (!db) throw new Error("Database connection failed");
 
   try {
+    const work = await db.prepare("SELECT thumbnail_url FROM gworks WHERE id = ?").bind(id).first<{ thumbnail_url: string }>();
     await db.prepare("DELETE FROM gworks WHERE id = ?").bind(id).run();
+    if (work?.thumbnail_url) await deleteFromR2(work.thumbnail_url);
     revalidatePath("/admin/gworks");
   } catch (err) {
     console.error("Delete GWork error:", err);
-    throw new Error("削除中にエラーが発生しました。");
+    throw new Error("Failed to delete record");
   }
 }
