@@ -54,18 +54,15 @@ export async function login(prevState: ActionState, formData: FormData): Promise
   }
 
   try {
-    // 管理者の取得
     const admin = await db
       .prepare("SELECT id, password, salt FROM admins WHERE email = ?")
       .bind(email)
       .first<{ id: number; password: string; salt: string }>();
 
-    // ユーザーが存在しない、またはパスワードが一致しない場合
     if (!admin || (await hashPassword(password, admin.salt)) !== admin.password) {
       return { error: "メールアドレスかパスワードが間違っています。" };
     }
 
-    // セッションCookieのセット
     const cookieStore = await cookies();
     cookieStore.set("admin_session", admin.id.toString(), {
       httpOnly: true,
@@ -80,6 +77,5 @@ export async function login(prevState: ActionState, formData: FormData): Promise
     return { error: "エラーが発生しました。" };
   }
 
-  // ダッシュボードへリダイレクト
   redirect("/admin/dashboard");
 }
