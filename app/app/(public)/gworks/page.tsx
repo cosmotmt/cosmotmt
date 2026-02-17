@@ -1,6 +1,12 @@
 export const runtime = "edge";
 
+import { Metadata } from "next";
 import GWorksList from "./GWorksList";
+
+export const metadata: Metadata = {
+  title: "ゲーム作品",
+  description: "CosmoTmtがこれまでに開発したゲーム作品の一覧です。",
+};
 
 export default async function GWorksPage() {
   const db = process.env.DB;

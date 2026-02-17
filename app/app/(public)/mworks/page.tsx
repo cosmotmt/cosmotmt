@@ -1,6 +1,12 @@
 export const runtime = "edge";
 
+import { Metadata } from "next";
 import MWorksList from "./MWorksList";
+
+export const metadata: Metadata = {
+  title: "音楽作品",
+  description: "CosmoTmtが制作した楽曲・BGM作品の一覧です。",
+};
 
 export default async function MWorksPage() {
   const db = process.env.DB;

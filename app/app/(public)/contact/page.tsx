@@ -1,6 +1,12 @@
 export const runtime = "edge";
 
+import { Metadata } from "next";
 import ContactForm from "./ContactForm";
+
+export const metadata: Metadata = {
+  title: "お問い合わせ",
+  description: "CosmoTmtへのゲーム開発・音楽制作のご依頼、お見積もり、その他お問い合わせはこちらから。",
+};
 
 export default function ContactPage() {
   return (
