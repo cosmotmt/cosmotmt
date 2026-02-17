@@ -102,7 +102,12 @@ export default function ContactForm() {
             </div>
             <h2 className="text-2xl font-black text-white mb-4">メッセージを送信しました</h2>
             <p className="text-gray-400">お問い合わせありがとうございます。内容を確認次第、ご連絡させていただきます。</p>
-            <button onClick={() => window.location.reload()} className="mt-10 text-sm font-black text-red-500 hover:text-red-400 transition-colors tracking-widest uppercase cursor-pointer">新しいメッセージを送る</button>
+            <button
+              onClick={() => window.location.reload()} 
+              className="mt-10 text-sm font-black text-gray-500 hover:text-red-500 transition-colors tracking-widest uppercase cursor-pointer"
+            >
+              新しいメッセージを送る
+            </button>
           </div>
         ) : (
           <form action={formAction} className="space-y-8">
