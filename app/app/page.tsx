@@ -8,7 +8,6 @@ export default async function Home() {
   const db = process.env.DB;
   if (!db) return <div>Database connection failed</div>;
 
-  // 最新のゲーム実績（フルデータ）を取得
   const { results: gResults } = await db.prepare(`
     SELECT 
       w.*,
@@ -32,7 +31,6 @@ export default async function Home() {
     };
   });
 
-  // 最新の音楽実績（フルデータ）を取得
   const { results: mResults } = await db.prepare(`
     SELECT 
       m.*,
@@ -56,7 +54,6 @@ export default async function Home() {
 
   return (
     <div className="relative">
-      {/* Hero Section */}
       <section className="relative min-h-[95vh] flex flex-col items-center justify-center px-6 text-center">
         <div className="relative z-10 max-w-4xl mx-auto">
           <h1 className="text-6xl md:text-9xl font-black tracking-tighter mb-12">
@@ -92,7 +89,6 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Games Section */}
       <section className="relative py-32 px-6">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-end justify-between mb-16">
@@ -102,13 +98,10 @@ export default async function Home() {
             </div>
             <Link href="/gworks" className="text-xs font-black tracking-widest text-gray-500 hover:text-red-500 transition-colors">すべて見る</Link>
           </div>
-
-          {/* 一覧ページと同じコンポーネントを使用 */}
           <GWorksList initialWorks={latestGWorks} />
         </div>
       </section>
 
-      {/* Music Section */}
       <section className="relative py-32 px-6">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-end justify-between mb-16">
@@ -118,13 +111,10 @@ export default async function Home() {
             </div>
             <Link href="/mworks" className="text-xs font-black tracking-widest text-gray-500 hover:text-red-500 transition-colors">すべて見る</Link>
           </div>
-
-          {/* 一覧ページと同じコンポーネントを使用 */}
           <MWorksList initialWorks={latestMWorks} />
         </div>
       </section>
 
-      {/* Contact CTA */}
       <section className="py-40 px-6 text-center">
         <div className="max-w-3xl mx-auto bg-slate-900/60 backdrop-blur-xl rounded-[4rem] p-16 md:p-24 shadow-2xl border border-white/10 relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-64 h-64 bg-red-600/10 rounded-full blur-[100px] group-hover:scale-150 transition-transform duration-1000"></div>

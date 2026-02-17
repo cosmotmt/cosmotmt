@@ -45,11 +45,9 @@ export default function GWorksList({ initialWorks }: GWorksListProps) {
             
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-1.5">
-                {/* 開発形態 */}
                 <span className="px-3 py-1 bg-slate-800 text-slate-400 text-[10px] font-black uppercase tracking-widest rounded-full border border-white/5">
                   {work.development_type === 'solo' ? '個人開発' : work.development_type === 'team' ? 'チーム開発' : '業務実績'}
                 </span>
-                {/* 開発期間 - 色と背景を開発形態と完全に統一 */}
                 {work.duration && (
                   <span className="px-3 py-1 bg-slate-800 text-slate-400 text-[10px] font-black uppercase tracking-widest rounded-full border border-white/5">
                     {work.duration}
@@ -70,7 +68,6 @@ export default function GWorksList({ initialWorks }: GWorksListProps) {
         </div>
       )}
 
-      {/* Modal */}
       <GameWorkModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}

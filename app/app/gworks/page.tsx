@@ -6,7 +6,6 @@ export default async function GWorksPage() {
   const db = process.env.DB;
   if (!db) return <div>Database connection failed</div>;
 
-  // start_date と end_date を取得するように修正
   const { results } = await db.prepare(`
     SELECT 
       w.*,
@@ -18,17 +17,13 @@ export default async function GWorksPage() {
   `).all();
 
   const works = results.map((work: any) => {
-    // 開発期間の文字列を作成
     let duration = "";
-    if (work.start_date && work.end_date) {
-      duration = `${work.start_date} 〜 ${work.end_date}`;
-    } else if (work.start_date) {
-      duration = `${work.start_date} 〜`;
-    }
+    if (work.start_date && work.end_date) duration = `${work.start_date} 〜 ${work.end_date}`;
+    else if (work.start_date) duration = `${work.start_date} 〜`;
 
     return {
       ...work,
-      duration, // 計算した期間をセット
+      duration,
       techs: work.techs ? work.techs.split(',') : [],
       roles: work.roles ? work.roles.split(',') : [],
       platforms: work.platforms ? work.platforms.split(',') : [],
@@ -42,7 +37,6 @@ export default async function GWorksPage() {
           <h1 className="text-3xl md:text-5xl font-black tracking-tighter mb-4 text-white">ゲーム作品</h1>
           <div className="h-1 w-20 bg-red-500 rounded-full"></div>
         </div>
-
         <GWorksList initialWorks={works} />
       </div>
     </div>

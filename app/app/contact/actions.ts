@@ -2,7 +2,6 @@
 
 import { revalidatePath } from "next/cache";
 
-// レスポンスの型定義
 export type ContactState = {
   success?: boolean;
   error?: string;
@@ -13,21 +12,16 @@ export type ContactState = {
   };
 };
 
-/**
- * お問い合わせ送信処理
- */
 export async function sendContact(prevState: any, formData: FormData): Promise<ContactState> {
   const db = process.env.DB;
   if (!db) {
     return { error: "データベース接続に失敗しました。" };
   }
 
-  // データの抽出
   const name = formData.get("name") as string;
   const email = formData.get("email") as string;
   const message = formData.get("message") as string;
 
-  // バリデーション
   const errors: ContactState["errors"] = {};
 
   if (!name || name.length < 2) {
@@ -42,13 +36,11 @@ export async function sendContact(prevState: any, formData: FormData): Promise<C
     errors.message = ["お問い合わせ内容は10文字以上で入力してください。"];
   }
 
-  // エラーがあれば返す
   if (Object.keys(errors).length > 0) {
     return { errors };
   }
 
   try {
-    // D1への保存
     await db
       .prepare("INSERT INTO contacts (name, email, message) VALUES (?, ?, ?)")
       .bind(name, email, message)

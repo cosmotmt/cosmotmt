@@ -28,13 +28,10 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-950 text-white`}>
-        {/* Cosmic Background Decoration (Global) */}
         <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-          {/* Nebula Blurs */}
           <div className="absolute top-[-10%] left-[-10%] w-[70%] h-[70%] rounded-full bg-red-900/10 blur-[120px]"></div>
           <div className="absolute bottom-[10%] right-[-5%] w-[60%] h-[60%] rounded-full bg-indigo-900/10 blur-[100px]"></div>
           
-          {/* Glowing Mako Stars */}
           <div className="absolute inset-0 animate-twinkle-1">
             <div className="w-1 h-1 bg-emerald-100 rounded-full shadow-[10vw_20vh_2px_#b3ffec,30vw_50vh_2px_#d1fae5,70vw_10vh_2px_#b3ffec,90vw_80vh_2px_#d1fae5,50vw_40vh_2px_#b3ffec,15vw_85vh_2px_#b3ffec,45vw_15vh_2px_#d1fae5,75vw_45vh_2px_#b3ffec,5vw_5vh_2px_#d1fae5,85vw_95vh_2px_#b3ffec]"></div>
           </div>
@@ -42,7 +39,6 @@ export default function RootLayout({
             <div className="w-0.5 h-0.5 bg-emerald-200 rounded-full shadow-[20vw_70vh_1px_#b3ffec,60vw_30vh_1px_#d1fae5,80vw_90vh_1px_#b3ffec,15vw_10vh_1px_#d1fae5,40vw_60vh_1px_#b3ffec,55vw_85vh_1px_#b3ffec,95vw_15vh_1px_#d1fae5,5vw_35vh_1px_#b3ffec,35vw_5vh_1px_#d1fae5,65vw_95vh_1px_#b3ffec]"></div>
           </div>
 
-          {/* Cosmic Bokeh */}
           <div className="absolute inset-0 animate-float-bokeh opacity-20">
             <div className="absolute top-[20%] left-[15%] w-32 h-32 bg-emerald-500/20 rounded-full blur-3xl"></div>
             <div className="absolute bottom-[30%] right-[20%] w-48 h-48 bg-red-500/10 rounded-full blur-[80px]"></div>
@@ -52,7 +48,6 @@ export default function RootLayout({
 
         <AudioProvider>
           <div className="flex flex-col min-h-screen">
-            {/* Header Navigation */}
             <header className="sticky top-0 z-40 w-full h-24 flex items-center bg-slate-950/30 backdrop-blur-md border-b border-white/5">
               <div className="max-w-6xl mx-auto px-6 w-full flex items-center justify-between">
                 <Link href="/" className="text-2xl font-black tracking-[0.05em] group flex items-center drop-shadow-md h-full">
@@ -91,11 +86,9 @@ export default function RootLayout({
 
             <GlobalPlayer />
 
-            {/* Footer */}
             <footer className="py-24 border-t border-white/5 bg-slate-950/30 backdrop-blur-md">
               <div className="max-w-6xl mx-auto px-6 text-center">
                 <div className="flex flex-col items-center gap-10">
-                  {/* SNS Links - Hover to Red */}
                   <div className="flex flex-wrap justify-center gap-x-10 gap-y-4">
                     <a href="#" className="text-[10px] font-black tracking-[0.2em] text-gray-500 hover:text-red-500 transition-colors uppercase">X</a>
                     <a href="#" className="text-[10px] font-black tracking-[0.2em] text-gray-500 hover:text-red-500 transition-colors uppercase">YouTube</a>
@@ -103,7 +96,6 @@ export default function RootLayout({
                     <a href="#" className="text-[10px] font-black tracking-[0.2em] text-gray-500 hover:text-red-500 transition-colors uppercase">GitHub</a>
                   </div>
 
-                  {/* Copyright - Improved Visibility */}
                   <p className="text-gray-500 text-[9px] font-bold uppercase tracking-[0.4em]">
                     &copy; {new Date().getFullYear()} CosmoTmt. All rights reserved.
                   </p>

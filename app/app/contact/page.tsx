@@ -9,7 +9,6 @@ export default function ContactPage() {
   return (
     <div className="min-h-screen pt-32 pb-24 px-6">
       <div className="max-w-3xl mx-auto">
-        {/* Header */}
         <div className="mb-16 text-center">
           <h1 className="text-3xl md:text-5xl font-black tracking-tighter mb-4 text-white">お問い合わせ</h1>
           <div className="h-1 w-20 bg-red-500 rounded-full mx-auto"></div>
@@ -18,7 +17,6 @@ export default function ContactPage() {
           </p>
         </div>
 
-        {/* Form / Success Message */}
         <div className="bg-slate-900/40 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-8 md:p-12 shadow-2xl animate-fade-in-up">
           {state?.success ? (
             <div className="text-center py-12">
@@ -46,7 +44,6 @@ export default function ContactPage() {
                 </div>
               )}
 
-              {/* Name Field */}
               <div className="space-y-2">
                 <label htmlFor="name" className="block text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] ml-1">お名前</label>
                 <input
@@ -64,7 +61,6 @@ export default function ContactPage() {
                 )}
               </div>
 
-              {/* Email Field */}
               <div className="space-y-2">
                 <label htmlFor="email" className="block text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] ml-1">メールアドレス</label>
                 <input
@@ -82,7 +78,6 @@ export default function ContactPage() {
                 )}
               </div>
 
-              {/* Message Field */}
               <div className="space-y-2">
                 <label htmlFor="message" className="block text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] ml-1">お問い合わせ内容</label>
                 <textarea
