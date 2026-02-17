@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
-import { AudioProvider } from "./context/AudioContext"; // AudioProviderをインポート
-import GlobalPlayer from "./components/GlobalPlayer"; // GlobalPlayerをインポート
+import { AudioProvider } from "./context/AudioContext";
+import GlobalPlayer from "./components/GlobalPlayer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -50,7 +50,7 @@ export default function RootLayout({
           </div>
         </div>
 
-        <AudioProvider> {/* AudioProviderでラップ */}
+        <AudioProvider>
           <div className="flex flex-col min-h-screen">
             {/* Header Navigation */}
             <header className="sticky top-0 z-40 w-full h-24 flex items-center bg-slate-950/30 backdrop-blur-md border-b border-white/5">
@@ -67,15 +67,15 @@ export default function RootLayout({
                 <nav className="hidden md:flex items-center gap-12 pt-1">
                   <Link href="/gworks" className="group flex flex-col items-center drop-shadow-sm">
                     <span className="text-sm font-bold tracking-[0.1em] text-white group-hover:text-red-500 transition-colors leading-none">ゲーム</span>
-                    <span className="text-[9px] font-black tracking-[0.2em] text-white/70 group-hover:text-red-500 transition-colors uppercase mr-[-0.2em] mt-1.5">Games</span>
+                    <span className="text-[9px] font-black tracking-[0.2em] text-white/50 group-hover:text-red-500 transition-colors uppercase mr-[-0.2em] mt-1.5">Games</span>
                   </Link>
                   <Link href="/mworks" className="group flex flex-col items-center drop-shadow-sm">
                     <span className="text-sm font-bold tracking-[0.1em] text-white group-hover:text-red-500 transition-colors leading-none">音楽</span>
-                    <span className="text-[9px] font-black tracking-[0.2em] text-white/70 group-hover:text-red-400 transition-colors uppercase mr-[-0.2em] mt-1.5">Music</span>
+                    <span className="text-[9px] font-black tracking-[0.2em] text-white/50 group-hover:text-red-500 transition-colors uppercase mr-[-0.2em] mt-1.5">Music</span>
                   </Link>
                   <Link href="/contact" className="group flex flex-col items-center drop-shadow-sm">
                     <span className="text-sm font-bold tracking-[0.1em] text-white group-hover:text-red-500 transition-colors leading-none">お問い合わせ</span>
-                    <span className="text-[9px] font-black tracking-[0.2em] text-white/70 group-hover:text-red-400 transition-colors uppercase mr-[-0.2em] mt-1.5">Contact</span>
+                    <span className="text-[9px] font-black tracking-[0.2em] text-white/50 group-hover:text-red-500 transition-colors uppercase mr-[-0.2em] mt-1.5">Contact</span>
                   </Link>
                 </nav>
 
@@ -85,28 +85,29 @@ export default function RootLayout({
               </div>
             </header>
 
-            {/* Main Content */}
             <main className="flex-1">
               {children}
             </main>
 
-            {/* Global Audio Player */}
             <GlobalPlayer />
 
             {/* Footer */}
-            <footer className="py-24 bg-slate-950/30 backdrop-blur-md border-t border-white/5">
-              <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8">
-                <div className="text-xl font-black tracking-[0.05em] flex items-center drop-shadow-md text-white group">
-                  <span>C</span>
-                  <span className="text-red-500">o</span>
-                  <span>sm</span>
-                  <span className="text-red-500">o</span>
-                  <span>Tmt</span>
-                  <span className="ml-4 tracking-[0.1em]">Planet</span>
+            <footer className="py-24 border-t border-white/5 bg-slate-950/30 backdrop-blur-md">
+              <div className="max-w-6xl mx-auto px-6 text-center">
+                <div className="flex flex-col items-center gap-10">
+                  {/* SNS Links - Hover to Red */}
+                  <div className="flex flex-wrap justify-center gap-x-10 gap-y-4">
+                    <a href="#" className="text-[10px] font-black tracking-[0.2em] text-gray-500 hover:text-red-500 transition-colors uppercase">X</a>
+                    <a href="#" className="text-[10px] font-black tracking-[0.2em] text-gray-500 hover:text-red-500 transition-colors uppercase">YouTube</a>
+                    <a href="#" className="text-[10px] font-black tracking-[0.2em] text-gray-500 hover:text-red-500 transition-colors uppercase">Twitch</a>
+                    <a href="#" className="text-[10px] font-black tracking-[0.2em] text-gray-500 hover:text-red-500 transition-colors uppercase">GitHub</a>
+                  </div>
+
+                  {/* Copyright - Improved Visibility */}
+                  <p className="text-gray-500 text-[9px] font-bold uppercase tracking-[0.4em]">
+                    &copy; {new Date().getFullYear()} CosmoTmt. All rights reserved.
+                  </p>
                 </div>
-                <p className="text-white/30 text-[10px] font-bold uppercase tracking-[0.3em] drop-shadow-sm">
-                  &copy; {new Date().getFullYear()} CosmoTmt. All rights reserved.
-                </p>
               </div>
             </footer>
           </div>
