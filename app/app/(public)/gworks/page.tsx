@@ -31,9 +31,9 @@ export default async function GWorksPage() {
   });
 
   return (
-    <div className="min-h-screen pt-32 pb-24 px-6">
+    <div className="min-h-screen pt-24 md:pt-32 pb-48 md:pb-24 px-6">
       <div className="max-w-6xl mx-auto">
-        <div className="mb-16">
+        <div className="mb-12 md:mb-16">
           <h1 className="text-2xl md:text-4xl font-black tracking-tighter mb-4 text-white">ゲーム作品</h1>
           <div className="h-1 w-20 bg-red-500 rounded-full"></div>
         </div>

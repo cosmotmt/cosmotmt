@@ -50,7 +50,7 @@ export default function GlobalPlayer() {
         <div className="flex items-center gap-6 md:gap-10">
           
           {/* Left: Thumbnail (Play/Pause Switch) */}
-          <div 
+          <div
             className="relative w-14 h-14 md:w-16 md:h-16 rounded-xl overflow-hidden bg-slate-800 flex-shrink-0 shadow-xl border border-white/5 cursor-pointer group/thumb"
             onClick={togglePlay}
           >
