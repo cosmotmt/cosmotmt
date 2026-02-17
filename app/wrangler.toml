@@ -7,7 +7,7 @@ pages_build_output_dir = ".next"
 [[d1_databases]]
 binding = "DB"
 database_name = "db"
-database_id = "xxxx-xxxx-xxxx-xxxx"
+database_id = "3dec4127-1d2a-4208-9589-3e6628e40f34"
 
 [[r2_buckets]]
 binding = "R2"
