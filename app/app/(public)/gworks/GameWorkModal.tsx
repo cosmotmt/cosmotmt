@@ -57,10 +57,10 @@ export default function GameWorkModal({ isOpen, onClose, work }: GameWorkModalPr
         className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-slate-900 rounded-[2.5rem] shadow-2xl border border-white/10 animate-fade-in-up"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center bg-slate-800/50 hover:bg-red-500 text-white rounded-full transition-all z-20 backdrop-blur-md"
+          className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center bg-slate-800/50 hover:bg-red-500 text-white rounded-full transition-all z-20 backdrop-blur-md cursor-pointer"
+          aria-label="Close"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -68,7 +68,6 @@ export default function GameWorkModal({ isOpen, onClose, work }: GameWorkModalPr
         </button>
 
         <div className="flex flex-col lg:flex-row">
-          {/* Left: Image & Links */}
           <div className="lg:w-1/2">
             <div className="aspect-video lg:aspect-square bg-slate-800 overflow-hidden">
               {work.thumbnail_url ? (
@@ -95,7 +94,6 @@ export default function GameWorkModal({ isOpen, onClose, work }: GameWorkModalPr
             )}
           </div>
 
-          {/* Right: Details */}
           <div className="lg:w-1/2 p-8 lg:p-12 lg:border-l border-white/5">
             <div className="mb-10">
               <div className="flex items-center gap-1.5 mb-6">
@@ -103,7 +101,7 @@ export default function GameWorkModal({ isOpen, onClose, work }: GameWorkModalPr
                   {work.development_type === 'solo' ? '個人開発' : work.development_type === 'team' ? 'チーム開発' : '業務実績'}
                 </span>
                 {work.duration && (
-                  <span className="px-3 py-1 bg-white/5 text-slate-400 text-[10px] font-black uppercase tracking-widest rounded-full border border-white/5">
+                  <span className="px-3 py-1 bg-slate-800 text-slate-400 text-[10px] font-black uppercase tracking-widest rounded-full border border-white/5">
                     {work.duration}
                   </span>
                 )}
@@ -113,7 +111,6 @@ export default function GameWorkModal({ isOpen, onClose, work }: GameWorkModalPr
             </div>
 
             <div className="space-y-10">
-              {/* Features */}
               {work.features && (
                 <div>
                   <h3 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mb-4">主な実装機能</h3>
@@ -121,7 +118,6 @@ export default function GameWorkModal({ isOpen, onClose, work }: GameWorkModalPr
                 </div>
               )}
 
-              {/* Platforms */}
               {work.platforms.length > 0 && (
                 <div>
                   <h3 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mb-4">プラットフォーム</h3>
@@ -133,7 +129,6 @@ export default function GameWorkModal({ isOpen, onClose, work }: GameWorkModalPr
                 </div>
               )}
 
-              {/* Tech Stack */}
               {work.techs.length > 0 && (
                 <div>
                   <h3 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mb-4">技術スタック</h3>
@@ -145,7 +140,6 @@ export default function GameWorkModal({ isOpen, onClose, work }: GameWorkModalPr
                 </div>
               )}
 
-              {/* Roles */}
               {work.roles.length > 0 && (
                 <div>
                   <h3 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mb-4">担当役割</h3>

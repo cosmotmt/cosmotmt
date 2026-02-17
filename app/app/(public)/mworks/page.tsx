@@ -6,7 +6,6 @@ export default async function MWorksPage() {
   const db = process.env.DB;
   if (!db) return <div>Database connection failed</div>;
 
-  // start_date と end_date を取得するように修正
   const { results } = await db.prepare(`
     SELECT 
       m.*,
@@ -17,17 +16,13 @@ export default async function MWorksPage() {
   `).all();
 
   const works = results.map((work: any) => {
-    // 制作期間の文字列を作成
     let duration = "";
-    if (work.start_date && work.end_date) {
-      duration = `${work.start_date} 〜 ${work.end_date}`;
-    } else if (work.start_date) {
-      duration = `${work.start_date} 〜`;
-    }
+    if (work.start_date && work.end_date) duration = `${work.start_date} 〜 ${work.end_date}`;
+    else if (work.start_date) duration = `${work.start_date} 〜`;
 
     return {
       ...work,
-      duration, // 計算した期間をセット
+      duration,
       genres: work.genres ? work.genres.split(',') : [],
       roles: work.roles ? work.roles.split(',') : [],
     };
@@ -36,13 +31,10 @@ export default async function MWorksPage() {
   return (
     <div className="min-h-screen pt-32 pb-40 px-6">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
         <div className="mb-16">
-          <h1 className="text-3xl md:text-5xl font-black tracking-tighter mb-4 text-white">音楽作品</h1>
+          <h1 className="text-2xl md:text-4xl font-black tracking-tighter mb-4 text-white">音楽作品</h1>
           <div className="h-1 w-20 bg-red-500 rounded-full"></div>
         </div>
-
-        {/* 音楽リスト (Client Component) */}
         <MWorksList initialWorks={works} />
       </div>
     </div>

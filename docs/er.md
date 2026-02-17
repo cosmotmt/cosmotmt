@@ -81,12 +81,20 @@ erDiagram
         integer role_id PK, FK
     }
 
-    gworks ||--o{ gwork_techs : "uses"
-    techs ||--o{ gwork_techs : "used by"
-    gworks ||--o{ gwork_roles : "assigned"
-    roles ||--o{ gwork_roles : "assigned to"
-    mworks ||--o{ mwork_genres : "categorized"
-    genres ||--o{ mwork_genres : "categorized by"
-    mworks ||--o{ mwork_roles : "assigned"
-    roles ||--o{ mwork_roles : "assigned to"
+    contacts {
+        integer id PK
+        text name "NOT NULL"
+        text email "NOT NULL"
+        text message "NOT NULL"
+        datetime created_at "DEFAULT CURRENT_TIMESTAMP"
+    }
+
+    gworks ||--o{ gwork_techs: "uses"
+    techs ||--o{ gwork_techs: "used by"
+    gworks ||--o{ gwork_roles: "assigned"
+    roles ||--o{ gwork_roles: "assigned to"
+    mworks ||--o{ mwork_genres: "categorized"
+    genres ||--o{ mwork_genres: "categorized by"
+    mworks ||--o{ mwork_roles: "assigned"
+    roles ||--o{ mwork_roles: "assigned to"
 ```

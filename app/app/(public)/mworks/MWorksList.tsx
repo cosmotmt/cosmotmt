@@ -27,7 +27,6 @@ export default function MWorksList({ initialWorks }: MWorksListProps) {
                 : "bg-slate-900/40 border-white/5 hover:bg-white/5 hover:border-white/10"
             }`}
           >
-            {/* Jacket Image */}
             <div className="relative w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden bg-slate-800 flex-shrink-0 shadow-lg">
               {work.thumbnail_url ? (
                 <img src={work.thumbnail_url} alt={work.title} className="w-full h-full object-cover" />
@@ -35,12 +34,10 @@ export default function MWorksList({ initialWorks }: MWorksListProps) {
                 <div className="w-full h-full flex items-center justify-center text-slate-600 text-[8px] font-black uppercase">No Cover</div>
               )}
               
-              {/* Play/Pause Overlay */}
               <div className={`absolute inset-0 flex items-center justify-center bg-black/40 transition-opacity ${
                 isCurrent ? "opacity-100" : "opacity-0 group-hover:opacity-100"
               }`}>
                 {isCurrent && isPlaying ? (
-                  // 再生中：通常は波形、ホバーで一時停止アイコン
                   <div className="relative w-full h-full flex items-center justify-center">
                     <div className="flex gap-1 items-end h-4 group-hover:opacity-0 transition-opacity">
                       <div className="w-1 bg-red-500 animate-bounce" style={{ animationDuration: '0.5s' }}></div>
@@ -52,7 +49,6 @@ export default function MWorksList({ initialWorks }: MWorksListProps) {
                     </svg>
                   </div>
                 ) : (
-                  // 停止中、または別の曲：再生アイコン
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M8 5v14l11-7z" />
                   </svg>
@@ -60,7 +56,6 @@ export default function MWorksList({ initialWorks }: MWorksListProps) {
               </div>
             </div>
 
-            {/* Info */}
             <div className="flex-1 min-w-0">
               <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 mb-2">
                 <h3 className={`text-lg font-bold truncate transition-colors ${isCurrent ? "text-red-500" : "text-white"}`}>
@@ -68,14 +63,10 @@ export default function MWorksList({ initialWorks }: MWorksListProps) {
                 </h3>
                 <div className="flex flex-wrap gap-1.5">
                   {work.genres.map((g: string) => (
-                    <span key={g} className={metaTagClass}>
-                      {g}
-                    </span>
+                    <span key={g} className={metaTagClass}>{g}</span>
                   ))}
                   {work.duration && (
-                    <span className={metaTagClass}>
-                      {work.duration}
-                    </span>
+                    <span className={metaTagClass}>{work.duration}</span>
                   )}
                 </div>
               </div>
@@ -84,15 +75,12 @@ export default function MWorksList({ initialWorks }: MWorksListProps) {
                 <p className="text-slate-400 text-sm line-clamp-1 flex-1">{work.description}</p>
                 <div className="flex flex-wrap gap-2">
                   {work.roles.map((r: string) => (
-                    <span key={r} className={roleTagClass}>
-                      {r}
-                    </span>
+                    <span key={r} className={roleTagClass}>{r}</span>
                   ))}
                 </div>
               </div>
             </div>
 
-            {/* Duration */}
             <div className="text-slate-500 text-xs font-mono w-12 text-right">
               {isCurrent ? formatTime(duration) : "--:--"}
             </div>

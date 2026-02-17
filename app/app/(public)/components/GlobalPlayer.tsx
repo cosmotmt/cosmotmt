@@ -9,18 +9,15 @@ export default function GlobalPlayer() {
     togglePlay, stopTrack, seek, setIsSeeking, setVolume, formatTime 
   } = useAudio();
 
-  // ドラッグ中の時間を管理するローカルState
   const [dragTime, setDragTime] = useState<number | null>(null);
 
   if (!currentTrack) return null;
 
-  // スライダー操作開始
   const handleMouseDown = () => {
     setIsSeeking(true);
     setDragTime(currentTime);
   };
 
-  // スライダー操作終了
   const handleMouseUp = () => {
     if (dragTime !== null) {
       seek(dragTime);
@@ -29,22 +26,20 @@ export default function GlobalPlayer() {
     setDragTime(null);
   };
 
-  // 操作中の値の更新（見た目だけを即座に変える）
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setDragTime(Number(e.target.value));
   };
 
-  // 表示用の時間（ドラッグ中はドラッグ中の時間を、それ以外は現在の再生時間を優先）
   const displayTime = dragTime !== null ? dragTime : currentTime;
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 p-4 md:p-6 group/player">
       <div className="max-w-4xl mx-auto bg-slate-900/90 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] shadow-2xl p-4 md:px-8 md:py-5 animate-fade-in-up relative">
         
-        {/* Close Button */}
+        {/* Close Button (Added cursor-pointer) */}
         <button
           onClick={stopTrack}
-          className="absolute -top-2 -right-2 w-8 h-8 flex items-center justify-center bg-slate-800 hover:bg-red-500 text-white rounded-full transition-all z-30 shadow-lg border border-white/10 opacity-0 group-hover/player:opacity-100 scale-90 group-hover/player:scale-100"
+          className="absolute -top-2 -right-2 w-8 h-8 flex items-center justify-center bg-slate-800 hover:bg-red-500 text-white rounded-full transition-all z-30 shadow-lg border border-white/10 opacity-0 group-hover/player:opacity-100 scale-90 group-hover/player:scale-100 cursor-pointer"
           aria-label="Close Player"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
