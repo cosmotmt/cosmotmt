@@ -69,11 +69,11 @@ function TagInput({
         {label}
       </label>
       
-      <div className="flex flex-wrap gap-2 p-2 min-h-[42px] rounded-lg border border-gray-300 bg-white focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-indigo-500 transition-all shadow-sm">
+      <div className="flex flex-wrap gap-2 p-2 min-h-[42px] rounded-lg border border-gray-300 bg-white focus-within:ring-2 focus-within:ring-sky-400 focus-within:border-sky-400 transition-all shadow-sm">
         {tags.map(tag => (
-          <span key={tag} className="inline-flex items-center gap-1 px-2 py-1 bg-indigo-100 text-indigo-700 text-xs font-bold rounded-md">
+          <span key={tag} className="inline-flex items-center gap-1 px-2 py-1 bg-sky-50 text-sky-700 text-xs font-bold rounded-md border border-sky-100">
             {tag}
-            <button type="button" onClick={() => removeTag(tag)} className="hover:text-indigo-900">&times;</button>
+            <button type="button" onClick={() => removeTag(tag)} className="hover:text-sky-900 focus:outline-none ml-1">&times;</button>
           </span>
         ))}
         <input
@@ -101,7 +101,7 @@ function TagInput({
               key={s}
               type="button"
               onClick={() => addTag(s)}
-              className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 transition-colors"
+              className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-sky-50 transition-colors"
             >
               {s}
             </button>
@@ -126,10 +126,9 @@ function ChipSelect({
   initialValue: string 
 }) {
   const options = [
-    { value: "solo", label: "個人開発" },
-    { value: "team", label: "チーム開発" },
-    { value: "contract", label: "受託開発" },
-    { value: "company", label: "業務委託・正社員" },
+    { value: "solo", label: "個人" },
+    { value: "team", label: "チーム" },
+    { value: "business", label: "業務" },
   ];
   const [selected, setSelected] = useState(initialValue || "solo");
 
@@ -138,16 +137,16 @@ function ChipSelect({
       <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5 tracking-wider">
         {label}
       </label>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex items-center gap-1.5 min-h-[42px]">
         {options.map(opt => (
           <button
             key={opt.value}
             type="button"
             onClick={() => setSelected(opt.value)}
-            className={`px-3 py-2 rounded-lg text-xs font-bold transition-all border ${
+            className={`px-4 py-2 rounded-lg text-[11px] font-bold transition-all border h-[34px] flex items-center justify-center ${
               selected === opt.value 
-                ? "bg-indigo-600 text-white border-indigo-600 shadow-sm" 
-                : "bg-white text-gray-600 border-gray-300 hover:border-indigo-400"
+                ? "bg-sky-500 text-white border-sky-500 shadow-sm" 
+                : "bg-white text-gray-600 border-gray-300 hover:border-sky-400"
             }`}
           >
             {opt.label}
@@ -172,64 +171,73 @@ export default function WorkForm({
 }: WorkFormProps) {
   const [state, formAction, isPending] = useActionState(action, null);
 
-  const inputClasses = "w-full rounded-lg border-gray-300 text-gray-900 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 border p-2.5 bg-white transition-all shadow-sm";
-
-  // プラットフォームのデフォルト候補
-  const defaultPlatforms = ["PC", "Windows", "Mac", "iOS", "Android"];
-  const allPlatforms = Array.from(new Set([...defaultPlatforms, ...existingPlatforms]));
+  const inputClasses = "w-full rounded-lg border-gray-300 text-gray-900 text-sm focus:ring-2 focus:ring-sky-400 focus:border-sky-400 border p-2.5 bg-white transition-all shadow-sm";
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-3xl mx-auto">
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-xl font-bold text-gray-900">{title}</h1>
-        <Link href="/admin/gworks" className="text-sm text-gray-500 hover:text-gray-700 transition">
+        <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+          <span className="w-2 h-6 bg-sky-500 rounded-full"></span>
+          {title}
+        </h1>
+        <Link href="/admin/gworks" className="text-sm text-gray-500 hover:text-sky-600 transition">
           キャンセル
         </Link>
       </div>
 
-      <form action={formAction} className="space-y-6 bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+      <form action={formAction} className="space-y-5 bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
         {state?.error && (
           <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm border border-red-100 font-medium">
             {state.error}
           </div>
         )}
 
-        <div className="space-y-6">
+        <div className="space-y-5">
+          {/* 作品タイトル */}
           <div>
             <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5 tracking-wider">作品タイトル *</label>
             <input type="text" name="title" defaultValue={initialData?.title} required className={inputClasses} placeholder="作品名を入力" />
           </div>
 
+          {/* 説明 */}
           <div>
             <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5 tracking-wider">説明</label>
-            <textarea name="description" defaultValue={initialData?.description} rows={3} className={inputClasses} placeholder="作品の概要" />
+            <textarea name="description" defaultValue={initialData?.description} rows={2} className={inputClasses} placeholder="作品の概要" />
           </div>
 
-          <TagInput name="techs" label="技術スタック" initialValue={techString} suggestions={existingTechs} />
-          <TagInput name="roles" label="担当役割" initialValue={roleString} suggestions={existingRoles} />
-          <TagInput name="platform" label="プラットフォーム" initialValue={platformString || initialData?.platform || ""} suggestions={allPlatforms} />
+          {/* タグ系入力 (2列グリッド) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <TagInput name="techs" label="技術スタック" initialValue={techString} suggestions={existingTechs} />
+            <TagInput name="roles" label="担当役割" initialValue={roleString} suggestions={existingRoles} />
+          </div>
 
-          <ChipSelect name="development_type" label="開発形態" initialValue={initialData?.development_type} />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <TagInput name="platform" label="プラットフォーム" initialValue={platformString} suggestions={existingPlatforms} />
+            <ChipSelect name="development_type" label="開発形態" initialValue={initialData?.development_type} />
+          </div>
 
+          {/* 実装機能 */}
           <div>
             <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5 tracking-wider">主な実装機能</label>
             <input type="text" name="features" defaultValue={initialData?.features} className={inputClasses} placeholder="オンライン対戦, 物理演算など" />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5 tracking-wider">開始日</label>
-              <input type="date" name="start_date" defaultValue={initialData?.start_date} className={inputClasses} />
+          {/* 期間 & URL (2列グリッド) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5 tracking-wider">開始日</label>
+                <input type="date" name="start_date" defaultValue={initialData?.start_date} className={inputClasses} />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5 tracking-wider">終了日</label>
+                <input type="date" name="end_date" defaultValue={initialData?.end_date} className={inputClasses} />
+              </div>
             </div>
             <div>
-              <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5 tracking-wider">終了日</label>
-              <input type="date" name="end_date" defaultValue={initialData?.end_date} className={inputClasses} />
+              <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5 tracking-wider">サムネイル URL</label>
+              <input type="text" name="thumbnail_url" defaultValue={initialData?.thumbnail_url} className={inputClasses} placeholder="https://..." />
             </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5 tracking-wider">サムネイル URL</label>
-            <input type="text" name="thumbnail_url" defaultValue={initialData?.thumbnail_url} className={inputClasses} placeholder="https://..." />
           </div>
 
           <div>
@@ -239,7 +247,7 @@ export default function WorkForm({
         </div>
 
         <div className="pt-4">
-          <button type="submit" disabled={isPending} className="w-full py-3 px-4 rounded-lg text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition shadow-md disabled:opacity-50">
+          <button type="submit" disabled={isPending} className="w-full py-3 px-4 rounded-lg text-sm font-bold text-white bg-sky-500 hover:bg-sky-600 transition shadow-md disabled:opacity-50">
             {isPending ? "保存中..." : "実績を保存する"}
           </button>
         </div>

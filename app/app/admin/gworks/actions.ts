@@ -5,9 +5,9 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
 /**
- * タグ（techs または roles）を処理し、IDの配列を返す
+ * タグ（techs, roles, platforms）を処理し、IDの配列を返す
  */
-async function getOrCreateTags(db: D1Database, table: "techs" | "roles", names: string[]): Promise<number[]> {
+async function getOrCreateTags(db: D1Database, table: "techs" | "roles" | "platforms", names: string[]): Promise<number[]> {
   const ids: number[] = [];
   
   for (const name of names) {
@@ -45,7 +45,6 @@ export async function createGWork(prevState: any, formData: FormData) {
 
   const title = formData.get("title") as string;
   const description = formData.get("description") as string;
-  const platform = formData.get("platform") as string;
   const features = formData.get("features") as string;
   const development_type = formData.get("development_type") as string;
   const thumbnail_url = formData.get("thumbnail_url") as string;
@@ -55,28 +54,38 @@ export async function createGWork(prevState: any, formData: FormData) {
 
   const techNames = (formData.get("techs") as string)?.split(",").filter(Boolean) || [];
   const roleNames = (formData.get("roles") as string)?.split(",").filter(Boolean) || [];
+  const platformNames = (formData.get("platform") as string)?.split(",").filter(Boolean) || [];
 
   if (!title) return { error: "タイトルは必須です。" };
 
   try {
+    // 1. 本体を保存 (platform カラムは削除済み)
     const result = await db
       .prepare(
-        `INSERT INTO gworks (title, description, platform, features, development_type, thumbnail_url, external_url, start_date, end_date) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        `INSERT INTO gworks (title, description, features, development_type, thumbnail_url, external_url, start_date, end_date) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
       )
-      .bind(title, description, platform, features, development_type, thumbnail_url, external_url, start_date || null, end_date || null)
+      .bind(title, description, features, development_type, thumbnail_url, external_url, start_date || null, end_date || null)
       .run();
 
     const gworkId = result.meta.last_row_id;
 
+    // 2. 技術タグの保存
     const techIds = await getOrCreateTags(db, "techs", techNames);
     for (const techId of techIds) {
       await db.prepare("INSERT INTO gwork_techs (gwork_id, tech_id) VALUES (?, ?)").bind(gworkId, techId).run();
     }
 
+    // 3. 役割タグの保存
     const roleIds = await getOrCreateTags(db, "roles", roleNames);
     for (const roleId of roleIds) {
       await db.prepare("INSERT INTO gwork_roles (gwork_id, role_id) VALUES (?, ?)").bind(gworkId, roleId).run();
+    }
+
+    // 4. プラットフォームタグの保存
+    const platformIds = await getOrCreateTags(db, "platforms", platformNames);
+    for (const platformId of platformIds) {
+      await db.prepare("INSERT INTO gwork_platforms (gwork_id, platform_id) VALUES (?, ?)").bind(gworkId, platformId).run();
     }
 
     revalidatePath("/admin/gworks");
@@ -100,7 +109,6 @@ export async function updateGWork(id: number, prevState: any, formData: FormData
 
   const title = formData.get("title") as string;
   const description = formData.get("description") as string;
-  const platform = formData.get("platform") as string;
   const features = formData.get("features") as string;
   const development_type = formData.get("development_type") as string;
   const thumbnail_url = formData.get("thumbnail_url") as string;
@@ -110,6 +118,7 @@ export async function updateGWork(id: number, prevState: any, formData: FormData
 
   const techNames = (formData.get("techs") as string)?.split(",").filter(Boolean) || [];
   const roleNames = (formData.get("roles") as string)?.split(",").filter(Boolean) || [];
+  const platformNames = (formData.get("platform") as string)?.split(",").filter(Boolean) || [];
 
   if (!title) return { error: "タイトルは必須です。" };
 
@@ -117,13 +126,13 @@ export async function updateGWork(id: number, prevState: any, formData: FormData
     // 1. 本体を更新
     await db
       .prepare(
-        `UPDATE gworks SET title = ?, description = ?, platform = ?, features = ?, development_type = ?, thumbnail_url = ?, external_url = ?, start_date = ?, end_date = ? 
+        `UPDATE gworks SET title = ?, description = ?, features = ?, development_type = ?, thumbnail_url = ?, external_url = ?, start_date = ?, end_date = ? 
          WHERE id = ?`
       )
-      .bind(title, description, platform, features, development_type, thumbnail_url, external_url, start_date || null, end_date || null, id)
+      .bind(title, description, features, development_type, thumbnail_url, external_url, start_date || null, end_date || null, id)
       .run();
 
-    // 2. 技術タグの更新（一度全部消して、付け直すのが一番確実なのだ！）
+    // 2. 技術タグの更新
     await db.prepare("DELETE FROM gwork_techs WHERE gwork_id = ?").bind(id).run();
     const techIds = await getOrCreateTags(db, "techs", techNames);
     for (const techId of techIds) {
@@ -135,6 +144,13 @@ export async function updateGWork(id: number, prevState: any, formData: FormData
     const roleIds = await getOrCreateTags(db, "roles", roleNames);
     for (const roleId of roleIds) {
       await db.prepare("INSERT INTO gwork_roles (gwork_id, role_id) VALUES (?, ?)").bind(id, roleId).run();
+    }
+
+    // 4. プラットフォームタグの更新
+    await db.prepare("DELETE FROM gwork_platforms WHERE gwork_id = ?").bind(id).run();
+    const platformIds = await getOrCreateTags(db, "platforms", platformNames);
+    for (const platformId of platformIds) {
+      await db.prepare("INSERT INTO gwork_platforms (gwork_id, platform_id) VALUES (?, ?)").bind(id, platformId).run();
     }
 
     revalidatePath("/admin/gworks");
