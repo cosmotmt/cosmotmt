@@ -123,7 +123,6 @@ export default function MusicWorkForm({
             </div>
           </div>
 
-          {/* サムネイル (Game実績と完全一致) */}
           <div>
             <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5 tracking-wider">ジャケット画像</label>
             <input type="hidden" name="thumbnail_url" value={thumbnailUrl} />
@@ -169,7 +168,6 @@ export default function MusicWorkForm({
             </div>
           </div>
 
-          {/* 音源ファイル */}
           <div>
             <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5 tracking-wider">音源ファイル</label>
             <input type="hidden" name="audio_url" value={audioUrl} />
@@ -204,8 +202,8 @@ export default function MusicWorkForm({
         </div>
 
         <div className="pt-4">
-          <button type="submit" disabled={isPending} className="w-full py-3 px-4 rounded-lg text-sm font-bold text-white bg-sky-500 hover:bg-sky-600 transition shadow-md disabled:opacity-50">
-            {isPending ? "保存中..." : "実績を保存する"}
+          <button type="submit" disabled={isPending || isUploading} className="w-full py-3 px-4 rounded-lg text-sm font-bold text-white bg-sky-500 hover:bg-sky-600 transition shadow-md disabled:opacity-50">
+            {isPending ? "保存中..." : isUploading ? "アップロード中..." : "実績を保存する"}
           </button>
         </div>
       </form>

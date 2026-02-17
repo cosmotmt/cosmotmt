@@ -198,8 +198,8 @@ export default function WorkForm({
         </div>
 
         <div className="pt-4">
-          <button type="submit" disabled={isPending} className="w-full py-3 px-4 rounded-lg text-sm font-bold text-white bg-sky-500 hover:bg-sky-600 transition shadow-md disabled:opacity-50">
-            {isPending ? "保存中..." : "実績を保存する"}
+          <button type="submit" disabled={isPending || isUploading} className="w-full py-3 px-4 rounded-lg text-sm font-bold text-white bg-sky-500 hover:bg-sky-600 transition shadow-md disabled:opacity-50">
+            {isPending ? "保存中..." : isUploading ? "アップロード中..." : "実績を保存する"}
           </button>
         </div>
       </form>
