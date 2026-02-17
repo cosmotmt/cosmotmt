@@ -1,4 +1,8 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { AudioProvider } from "./context/AudioContext";
 import GlobalPlayer from "./components/GlobalPlayer";
 
@@ -7,21 +11,41 @@ export default function PublicLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const pathname = usePathname();
+
+  // ページ遷移時にメニューを閉じる
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [pathname]);
+
+  // メニュー開閉時にスクロールをロック
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+  }, [isMenuOpen]);
+
+  const navLinks = [
+    { href: "/gworks", label: "ゲーム", subLabel: "Games" },
+    { href: "/mworks", label: "音楽", subLabel: "Music" },
+    { href: "/contact", label: "お問い合わせ", subLabel: "Contact" },
+  ];
+
   return (
     <AudioProvider>
       <div className="relative min-h-screen">
-        {/* Cosmic Background */}
         <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
           <div className="absolute top-[-10%] left-[-10%] w-[70%] h-[70%] rounded-full bg-red-900/10 blur-[120px]"></div>
           <div className="absolute bottom-[10%] right-[-5%] w-[60%] h-[60%] rounded-full bg-indigo-900/10 blur-[100px]"></div>
-          
           <div className="absolute inset-0 animate-twinkle-1">
             <div className="w-1 h-1 bg-emerald-100 rounded-full shadow-[10vw_20vh_2px_#b3ffec,30vw_50vh_2px_#d1fae5,70vw_10vh_2px_#b3ffec,90vw_80vh_2px_#d1fae5,50vw_40vh_2px_#b3ffec,15vw_85vh_2px_#b3ffec,45vw_15vh_2px_#d1fae5,75vw_45vh_2px_#b3ffec,5vw_5vh_2px_#d1fae5,85vw_95vh_2px_#b3ffec]"></div>
           </div>
           <div className="absolute inset-0 animate-twinkle-2">
-            <div className="w-0.5 h-0.5 bg-emerald-200 rounded-full shadow-[20vw_70vh_1px_#b3ffec,60vw_30vh_1px_#d1fae5,80vw_90vh_1px_#b3ffec,15vw_10vh_1px_#d1fae5,40vw_60vh_1px_#b3ffec,55vw_85vh_1px_#b3ffec,95vw_15vh_1px_#d1fae5,5vw_35vh_1px_#b3ffec,35vw_5vh_1px_#d1fae5,65vw_95vh_1px_#b3ffec]"></div>
+            <div className="w-0.5 h-0.5 bg-emerald-200 rounded-full shadow-[20vw_70vh_1px_#b3ffec,60vw_30vh_1px_#d1fae5,80vw_90vh_1px_#b3ffec,15vw_10vh_1px_#d1fae5,40vw_60vh_1px_#b3ffec,55vw_85vh_1px_#b3ffec,95vw_15vh_1px_#d1fae5,5vw_35vh_1px_#d1fae5,65vw_95vh_1px_#b3ffec]"></div>
           </div>
-
           <div className="absolute inset-0 animate-float-bokeh opacity-20">
             <div className="absolute top-[20%] left-[15%] w-32 h-32 bg-emerald-500/20 rounded-full blur-3xl"></div>
             <div className="absolute bottom-[30%] right-[20%] w-48 h-48 bg-red-500/10 rounded-full blur-[80px]"></div>
@@ -31,37 +55,56 @@ export default function PublicLayout({
 
         <div className="flex flex-col min-h-screen text-white">
           {/* Header Navigation */}
-          <header className="sticky top-0 z-40 w-full h-24 flex items-center bg-slate-950/30 backdrop-blur-md border-b border-white/5">
+          <header className="sticky top-0 z-50 w-full h-24 flex items-center bg-slate-950/30 backdrop-blur-md border-b border-white/5">
             <div className="max-w-6xl mx-auto px-6 w-full flex items-center justify-between">
-              <Link href="/" className="text-2xl font-black tracking-[0.05em] group flex items-center drop-shadow-md h-full">
+              <Link href="/" className="text-2xl font-black tracking-[0.05em] group flex items-baseline drop-shadow-md h-full relative z-50">
                 <span className="group-hover:text-red-500 transition-colors duration-300 text-white">C</span>
                 <span className="text-red-500">o</span>
                 <span className="group-hover:text-red-500 transition-colors duration-300 text-white">sm</span>
                 <span className="text-red-500">o</span>
                 <span className="group-hover:text-red-500 transition-colors duration-300 text-white">Tmt</span>
-                <span className="ml-4 group-hover:text-red-500 transition-colors duration-300 text-white">Planet</span>
+                <span className="ml-4 group-hover:text-red-500 transition-colors duration-300 text-white tracking-[0.1em]">Planet</span>
               </Link>
               
+              {/* Desktop Nav */}
               <nav className="hidden md:flex items-center gap-12 pt-1">
-                <Link href="/gworks" className="group flex flex-col items-center drop-shadow-sm">
-                  <span className="text-sm font-bold tracking-[0.1em] text-white group-hover:text-red-500 transition-colors leading-none">ゲーム</span>
-                  <span className="text-[9px] font-black tracking-[0.2em] text-white/70 group-hover:text-red-500 transition-colors uppercase mr-[-0.2em] mt-1.5">Games</span>
-                </Link>
-                <Link href="/mworks" className="group flex flex-col items-center drop-shadow-sm">
-                  <span className="text-sm font-bold tracking-[0.1em] text-white group-hover:text-red-500 transition-colors leading-none">音楽</span>
-                  <span className="text-[9px] font-black tracking-[0.2em] text-white/70 group-hover:text-red-500 transition-colors uppercase mr-[-0.2em] mt-1.5">Music</span>
-                </Link>
-                <Link href="/contact" className="group flex flex-col items-center drop-shadow-sm">
-                  <span className="text-sm font-bold tracking-[0.1em] text-white group-hover:text-red-500 transition-colors leading-none">お問い合わせ</span>
-                  <span className="text-[9px] font-black tracking-[0.2em] text-white/70 group-hover:text-red-500 transition-colors uppercase mr-[-0.2em] mt-1.5">Contact</span>
-                </Link>
+                {navLinks.map(link => (
+                  <Link key={link.href} href={link.href} className="group flex flex-col items-center drop-shadow-sm">
+                    <span className="text-sm font-bold tracking-[0.1em] text-white group-hover:text-red-500 transition-colors leading-none">{link.label}</span>
+                    <span className="text-[9px] font-black tracking-[0.2em] text-white/70 group-hover:text-red-500 transition-colors uppercase mr-[-0.2em] mt-1.5">{link.subLabel}</span>
+                  </Link>
+                ))}
               </nav>
 
-              <button className="md:hidden w-10 h-10 flex items-center justify-center">
-                <div className="w-6 h-0.5 bg-white relative before:content-[''] before:absolute before:w-6 before:h-0.5 before:bg-white before:-top-2 after:content-[''] after:absolute after:w-6 after:h-0.5 after:bg-white after:top-2"></div>
+              {/* Mobile Menu Button */}
+              <button 
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="md:hidden w-12 h-12 flex flex-col items-center justify-center gap-1.5 relative z-50 cursor-pointer"
+                aria-label="Menu"
+              >
+                <div className={`w-6 h-0.5 bg-white transition-all duration-300 ${isMenuOpen ? 'rotate-45 translate-y-2' : ''}`}></div>
+                <div className={`w-6 h-0.5 bg-white transition-all duration-300 ${isMenuOpen ? 'opacity-0' : ''}`}></div>
+                <div className={`w-6 h-0.5 bg-white transition-all duration-300 ${isMenuOpen ? '-rotate-45 -translate-y-2' : ''}`}></div>
               </button>
             </div>
           </header>
+
+          {/* Mobile Overlay Menu */}
+          <div className={`fixed inset-0 z-40 bg-slate-950/90 backdrop-blur-2xl transition-all duration-500 md:hidden ${isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+            <nav className="h-full flex flex-col items-center justify-center gap-12">
+              {navLinks.map((link, index) => (
+                <Link 
+                  key={link.href} 
+                  href={link.href}
+                  className={`group flex flex-col items-center transition-all duration-500 transform ${isMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}
+                  style={{ transitionDelay: `${index * 100}ms` }}
+                >
+                  <span className="text-3xl font-black tracking-[0.1em] text-white group-hover:text-red-500 transition-colors">{link.label}</span>
+                  <span className="text-xs font-black tracking-[0.3em] text-white/40 group-hover:text-red-500 transition-colors uppercase mt-2">{link.subLabel}</span>
+                </Link>
+              ))}
+            </nav>
+          </div>
 
           <main className="flex-1">
             {children}
@@ -77,7 +120,6 @@ export default function PublicLayout({
                   <a href="https://x.com/cosmotmt" target="_blank" rel="noopener noreferrer" className="text-[10px] font-black tracking-[0.2em] text-gray-500 hover:text-red-500 transition-colors uppercase">X</a>
                   <a href="https://www.youtube.com/@cosmotmt" target="_blank" rel="noopener noreferrer" className="text-[10px] font-black tracking-[0.2em] text-gray-500 hover:text-red-500 transition-colors uppercase">YouTube</a>
                 </div>
-
                 <p className="text-gray-500 text-[9px] font-bold uppercase tracking-[0.4em]">
                   &copy; {new Date().getFullYear()} CosmoTmt. All rights reserved.
                 </p>
