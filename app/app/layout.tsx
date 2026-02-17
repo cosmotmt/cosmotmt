@@ -90,10 +90,8 @@ export default function RootLayout({
               <div className="max-w-6xl mx-auto px-6 text-center">
                 <div className="flex flex-col items-center gap-10">
                   <div className="flex flex-wrap justify-center gap-x-10 gap-y-4">
-                    <a href="#" className="text-[10px] font-black tracking-[0.2em] text-gray-500 hover:text-red-500 transition-colors uppercase">X</a>
-                    <a href="#" className="text-[10px] font-black tracking-[0.2em] text-gray-500 hover:text-red-500 transition-colors uppercase">YouTube</a>
-                    <a href="#" className="text-[10px] font-black tracking-[0.2em] text-gray-500 hover:text-red-500 transition-colors uppercase">Twitch</a>
-                    <a href="#" className="text-[10px] font-black tracking-[0.2em] text-gray-500 hover:text-red-500 transition-colors uppercase">GitHub</a>
+                    <a href="https://x.com/cosmotmt" className="text-[10px] font-black tracking-[0.2em] text-gray-500 hover:text-red-500 transition-colors uppercase">X</a>
+                    <a href="https://www.youtube.com/@cosmotmt" className="text-[10px] font-black tracking-[0.2em] text-gray-500 hover:text-red-500 transition-colors uppercase">YouTube</a>
                   </div>
 
                   <p className="text-gray-500 text-[9px] font-bold uppercase tracking-[0.4em]">
