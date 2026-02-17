@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { redirect, notFound } from "next/navigation";
-import WorkForm from "../../WorkForm";
-import { updateGWork } from "../../actions";
+import WorkForm from "../WorkForm";
+import { updateGWork } from "../actions";
 
 export const runtime = "edge";
 

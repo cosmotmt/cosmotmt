@@ -56,7 +56,7 @@ export default async function GWorksListPage() {
                 </div>
                 <div className="flex items-center gap-4">
                   <Link
-                    href={`/admin/gworks/${work.id}/edit`}
+                    href={`/admin/gworks/${work.id}`}
                     className="text-sm text-sky-600 hover:text-sky-800 font-medium"
                   >
                     編集
