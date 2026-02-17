@@ -9,10 +9,7 @@ interface MWorksListProps {
 export default function MWorksList({ initialWorks }: MWorksListProps) {
   const { currentTrack, isPlaying, playTrack, duration, formatTime } = useAudio();
 
-  // ゲームの技術スタックと同じスタイル (四角いバッジ)
   const roleTagClass = "px-3 py-1 bg-white/5 text-white text-[11px] font-bold rounded-lg border border-white/10 tracking-wider whitespace-nowrap";
-  
-  // ゲームの開発形態・期間と同じスタイル (カプセル型バッジ)
   const metaTagClass = "px-3 py-1 bg-slate-800 text-slate-400 text-[10px] font-black uppercase tracking-widest rounded-full border border-white/5 whitespace-nowrap";
 
   return (
@@ -38,17 +35,24 @@ export default function MWorksList({ initialWorks }: MWorksListProps) {
                 <div className="w-full h-full flex items-center justify-center text-slate-600 text-[8px] font-black uppercase">No Cover</div>
               )}
               
-              {/* Play Overlay */}
+              {/* Play/Pause Overlay */}
               <div className={`absolute inset-0 flex items-center justify-center bg-black/40 transition-opacity ${
-                isCurrent && isPlaying ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                isCurrent ? "opacity-100" : "opacity-0 group-hover:opacity-100"
               }`}>
                 {isCurrent && isPlaying ? (
-                  <div className="flex gap-1 items-end h-4">
-                    <div className="w-1 bg-red-500 animate-bounce" style={{ animationDuration: '0.5s' }}></div>
-                    <div className="w-1 bg-red-500 animate-bounce" style={{ animationDuration: '0.8s' }}></div>
-                    <div className="w-1 bg-red-500 animate-bounce" style={{ animationDuration: '0.6s' }}></div>
+                  // 再生中：通常は波形、ホバーで一時停止アイコン
+                  <div className="relative w-full h-full flex items-center justify-center">
+                    <div className="flex gap-1 items-end h-4 group-hover:opacity-0 transition-opacity">
+                      <div className="w-1 bg-red-500 animate-bounce" style={{ animationDuration: '0.5s' }}></div>
+                      <div className="w-1 bg-red-500 animate-bounce" style={{ animationDuration: '0.8s' }}></div>
+                      <div className="w-1 bg-red-500 animate-bounce" style={{ animationDuration: '0.6s' }}></div>
+                    </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="absolute h-8 w-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+                    </svg>
                   </div>
                 ) : (
+                  // 停止中、または別の曲：再生アイコン
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M8 5v14l11-7z" />
                   </svg>
@@ -63,13 +67,11 @@ export default function MWorksList({ initialWorks }: MWorksListProps) {
                   {work.title}
                 </h3>
                 <div className="flex flex-wrap gap-1.5">
-                  {/* ジャンル */}
                   {work.genres.map((g: string) => (
                     <span key={g} className={metaTagClass}>
                       {g}
                     </span>
                   ))}
-                  {/* 制作期間 */}
                   {work.duration && (
                     <span className={metaTagClass}>
                       {work.duration}

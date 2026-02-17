@@ -15,14 +15,15 @@ interface AudioContextType {
   isPlaying: boolean;
   duration: number;
   currentTime: number;
-  volume: number; // 音量を追加
+  volume: number;
   playTrack: (track: Track) => void;
   pauseTrack: () => void;
   resumeTrack: () => void;
   togglePlay: () => void;
   stopTrack: () => void;
   seek: (time: number) => void;
-  setVolume: (volume: number) => void; // 音量設定を追加
+  setIsSeeking: (seeking: boolean) => void;
+  setVolume: (volume: number) => void;
   formatTime: (time: number) => string;
 }
 
@@ -33,41 +34,77 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
-  const [volume, setVolumeState] = useState(0.7); // デフォルト音量 70%
+  const [volume, setVolumeState] = useState(0.7);
+  
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const isSeekingRef = useRef(false);
 
   useEffect(() => {
-    audioRef.current = new Audio();
-    audioRef.current.volume = volume;
+    const audio = new Audio();
+    audio.volume = volume;
+    audioRef.current = audio;
     
     const handleEnded = () => setIsPlaying(false);
-    const handleTimeUpdate = () => setCurrentTime(audioRef.current?.currentTime || 0);
-    const handleLoadedMetadata = () => setDuration(audioRef.current?.duration || 0);
+    const handleTimeUpdate = () => {
+      if (!isSeekingRef.current) {
+        setCurrentTime(audio.currentTime);
+      }
+    };
 
-    audioRef.current.addEventListener("ended", handleEnded);
-    audioRef.current.addEventListener("timeupdate", handleTimeUpdate);
-    audioRef.current.addEventListener("loadedmetadata", handleLoadedMetadata);
+    const updateDuration = () => {
+      if (audio.duration && audio.duration !== Infinity && !isNaN(audio.duration)) {
+        setDuration(audio.duration);
+      }
+    };
+
+    audio.addEventListener("ended", handleEnded);
+    audio.addEventListener("timeupdate", handleTimeUpdate);
+    audio.addEventListener("loadedmetadata", updateDuration);
+    audio.addEventListener("durationchange", updateDuration);
+    audio.addEventListener("canplaythrough", updateDuration);
 
     return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.removeEventListener("ended", handleEnded);
-        audioRef.current.removeEventListener("timeupdate", handleTimeUpdate);
-        audioRef.current.removeEventListener("loadedmetadata", handleLoadedMetadata);
-      }
+      audio.pause();
+      audio.removeAttribute("src");
+      audio.load();
+      audio.removeEventListener("ended", handleEnded);
+      audio.removeEventListener("timeupdate", handleTimeUpdate);
+      audio.removeEventListener("loadedmetadata", updateDuration);
+      audio.removeEventListener("durationchange", updateDuration);
+      audio.removeEventListener("canplaythrough", updateDuration);
     };
   }, []);
 
   const playTrack = (track: Track) => {
-    if (!audioRef.current) return;
+    if (!audioRef.current || !track.audio_url) return;
 
     if (currentTrack?.id === track.id) {
       togglePlay();
     } else {
+      // 1. 確実に停止
+      audioRef.current.pause();
+      setIsPlaying(false);
+      
+      // 2. 状態リセット
+      setDuration(0);
+      setCurrentTime(0);
+      
+      // 3. ソースの切り替え
       audioRef.current.src = track.audio_url;
-      audioRef.current.play();
-      setCurrentTrack(track);
-      setIsPlaying(true);
+      audioRef.current.load(); // WAVなどのために明示的にロード
+      
+      // 4. 再生
+      const playPromise = audioRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          setCurrentTrack(track);
+          setIsPlaying(true);
+        }).catch(error => {
+          if (error.name !== "AbortError") {
+            console.error("Playback failed:", error);
+          }
+        });
+      }
     }
   };
 
@@ -77,32 +114,40 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   };
 
   const resumeTrack = () => {
-    audioRef.current?.play();
-    setIsPlaying(true);
+    if (!audioRef.current || !audioRef.current.src) return;
+    audioRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
   };
 
   const togglePlay = () => {
-    if (isPlaying) {
-      pauseTrack();
-    } else {
-      resumeTrack();
-    }
+    if (isPlaying) pauseTrack();
+    else resumeTrack();
   };
 
   const stopTrack = () => {
     if (audioRef.current) {
       audioRef.current.pause();
-      audioRef.current.currentTime = 0;
+      audioRef.current.removeAttribute("src"); // 空文字ではなく属性削除
+      audioRef.current.load(); // 状態をクリア
     }
     setCurrentTrack(null);
     setIsPlaying(false);
+    setDuration(0);
+    setCurrentTime(0);
   };
 
   const seek = (time: number) => {
-    if (audioRef.current) {
-      audioRef.current.currentTime = time;
-      setCurrentTime(time);
+    if (audioRef.current && audioRef.current.readyState >= 1) {
+      try {
+        audioRef.current.currentTime = time;
+        setCurrentTime(time);
+      } catch (e) {
+        // Ignore
+      }
     }
+  };
+
+  const setIsSeeking = (seeking: boolean) => {
+    isSeekingRef.current = seeking;
   };
 
   const setVolume = (v: number) => {
@@ -113,7 +158,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   };
 
   const formatTime = (time: number) => {
-    if (isNaN(time)) return "0:00";
+    if (!time || isNaN(time) || time === Infinity) return "0:00";
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds.toString().padStart(2, "0")}`;
@@ -122,7 +167,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   return (
     <AudioContext.Provider value={{ 
       currentTrack, isPlaying, duration, currentTime, volume,
-      playTrack, pauseTrack, resumeTrack, togglePlay, stopTrack, seek, setVolume, formatTime
+      playTrack, pauseTrack, resumeTrack, togglePlay, stopTrack, seek, setIsSeeking, setVolume, formatTime 
     }}>
       {children}
     </AudioContext.Provider>
@@ -131,8 +176,6 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
 
 export function useAudio() {
   const context = useContext(AudioContext);
-  if (context === undefined) {
-    throw new Error("useAudio must be used within an AudioProvider");
-  }
+  if (context === undefined) throw new Error("useAudio must be used within an AudioProvider");
   return context;
 }

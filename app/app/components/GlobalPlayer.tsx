@@ -1,20 +1,47 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useAudio } from "../context/AudioContext";
 
 export default function GlobalPlayer() {
   const { 
     currentTrack, isPlaying, duration, currentTime, volume,
-    togglePlay, stopTrack, seek, setVolume, formatTime 
+    togglePlay, stopTrack, seek, setIsSeeking, setVolume, formatTime 
   } = useAudio();
 
+  // ドラッグ中の時間を管理するローカルState
+  const [dragTime, setDragTime] = useState<number | null>(null);
+
   if (!currentTrack) return null;
+
+  // スライダー操作開始
+  const handleMouseDown = () => {
+    setIsSeeking(true);
+    setDragTime(currentTime);
+  };
+
+  // スライダー操作終了
+  const handleMouseUp = () => {
+    if (dragTime !== null) {
+      seek(dragTime);
+    }
+    setIsSeeking(false);
+    setDragTime(null);
+  };
+
+  // 操作中の値の更新（見た目だけを即座に変える）
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDragTime(Number(e.target.value));
+  };
+
+  // 表示用の時間（ドラッグ中はドラッグ中の時間を、それ以外は現在の再生時間を優先）
+  const displayTime = dragTime !== null ? dragTime : currentTime;
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 p-4 md:p-6 group/player">
       <div className="max-w-4xl mx-auto bg-slate-900/90 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] shadow-2xl p-4 md:px-8 md:py-5 animate-fade-in-up relative">
         
-        {/* Close Button (Visible only on player hover) */}
+        {/* Close Button */}
         <button
           onClick={stopTrack}
           className="absolute -top-2 -right-2 w-8 h-8 flex items-center justify-center bg-slate-800 hover:bg-red-500 text-white rounded-full transition-all z-30 shadow-lg border border-white/10 opacity-0 group-hover/player:opacity-100 scale-90 group-hover/player:scale-100"
@@ -27,7 +54,7 @@ export default function GlobalPlayer() {
 
         <div className="flex items-center gap-6 md:gap-10">
           
-          {/* Left: Thumbnail (Play/Pause Switch - Visible only on player hover) */}
+          {/* Left: Thumbnail (Play/Pause Switch) */}
           <div 
             className="relative w-14 h-14 md:w-16 md:h-16 rounded-xl overflow-hidden bg-slate-800 flex-shrink-0 shadow-xl border border-white/5 cursor-pointer group/thumb"
             onClick={togglePlay}
@@ -38,7 +65,6 @@ export default function GlobalPlayer() {
               <div className="w-full h-full flex items-center justify-center text-slate-600 text-[10px] font-black uppercase">No Cover</div>
             )}
             
-            {/* Play/Pause Overlay (Visible ONLY when player is hovered) */}
             <div className="absolute inset-0 flex items-center justify-center bg-black/40 transition-opacity duration-300 opacity-0 group-hover/player:opacity-100">
               {isPlaying ? (
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -64,22 +90,26 @@ export default function GlobalPlayer() {
                   type="range"
                   min="0"
                   max={duration || 0}
-                  value={currentTime}
-                  onChange={(e) => seek(Number(e.target.value))}
+                  value={displayTime}
+                  onMouseDown={handleMouseDown}
+                  onMouseUp={handleMouseUp}
+                  onTouchStart={handleMouseDown}
+                  onTouchEnd={handleMouseUp}
+                  onChange={handleChange}
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
                 />
                 <div 
                   className="absolute top-0 left-0 h-full bg-red-500 transition-all duration-100"
-                  style={{ width: `${(currentTime / duration) * 100}%` }}
+                  style={{ width: `${duration > 0 ? (displayTime / duration) * 100 : 0}%` }}
                 ></div>
               </div>
               <div className="text-[10px] font-mono text-slate-500 tracking-tighter whitespace-nowrap">
-                {formatTime(currentTime)} / {formatTime(duration)}
+                {formatTime(displayTime)} / {formatTime(duration)}
               </div>
             </div>
           </div>
 
-          {/* Right: Volume Only */}
+          {/* Right: Volume */}
           <div className="flex items-center">
             <div className="flex items-center group/volume relative">
               <div className="w-10 h-10 flex items-center justify-center text-slate-500 group-hover/volume:text-white transition-colors cursor-pointer">
