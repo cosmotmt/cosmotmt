@@ -1,18 +1,58 @@
 export const runtime = "edge";
 
 import Link from "next/link";
+import GWorksList from "./gworks/GWorksList";
+import MWorksList from "./mworks/MWorksList";
 
 export default async function Home() {
   const db = process.env.DB;
   if (!db) return <div>Database connection failed</div>;
 
-  const latestGWorks = await db
-    .prepare("SELECT id, title, thumbnail_url, description FROM gworks ORDER BY created_at DESC LIMIT 3")
-    .all<any>();
+  // 最新のゲーム実績（フルデータ）を取得
+  const { results: gResults } = await db.prepare(`
+    SELECT 
+      w.*,
+      (SELECT GROUP_CONCAT(t.name) FROM gwork_techs wt JOIN techs t ON wt.tech_id = t.id WHERE wt.gwork_id = w.id) as techs,
+      (SELECT GROUP_CONCAT(r.name) FROM gwork_roles wr JOIN roles r ON wr.role_id = r.id WHERE wr.gwork_id = w.id) as roles,
+      (SELECT GROUP_CONCAT(p.name) FROM gwork_platforms wp JOIN platforms p ON wp.platform_id = p.id WHERE wp.gwork_id = w.id) as platforms
+    FROM gworks w
+    ORDER BY w.created_at DESC LIMIT 3
+  `).all();
 
-  const latestMWorks = await db
-    .prepare("SELECT id, title, thumbnail_url, description, audio_url FROM mworks ORDER BY created_at DESC LIMIT 3")
-    .all<any>();
+  const latestGWorks = gResults.map((work: any) => {
+    let duration = "";
+    if (work.start_date && work.end_date) duration = `${work.start_date} 〜 ${work.end_date}`;
+    else if (work.start_date) duration = `${work.start_date} 〜`;
+    return {
+      ...work,
+      duration,
+      techs: work.techs ? work.techs.split(',') : [],
+      roles: work.roles ? work.roles.split(',') : [],
+      platforms: work.platforms ? work.platforms.split(',') : [],
+    };
+  });
+
+  // 最新の音楽実績（フルデータ）を取得
+  const { results: mResults } = await db.prepare(`
+    SELECT 
+      m.*,
+      (SELECT GROUP_CONCAT(g.name) FROM mwork_genres mg JOIN genres g ON mg.genre_id = g.id WHERE mg.mwork_id = m.id) as genres,
+      (SELECT GROUP_CONCAT(r.name) FROM mwork_roles mr JOIN roles r ON mr.role_id = r.id WHERE mr.mwork_id = m.id) as roles
+    FROM mworks m
+    ORDER BY m.created_at DESC LIMIT 3
+  `).all();
+
+  const latestMWorks = mResults.map((work: any) => {
+    let duration = "";
+    if (work.start_date && work.end_date) duration = `${work.start_date} 〜 ${work.end_date}`;
+    else if (work.start_date) duration = `${work.start_date} 〜`;
+    return {
+      ...work,
+      duration,
+      genres: work.genres ? work.genres.split(',') : [],
+      roles: work.roles ? work.roles.split(',') : [],
+    };
+  });
 
   return (
     <div className="relative">
@@ -57,27 +97,14 @@ export default async function Home() {
         <div className="max-w-6xl mx-auto">
           <div className="flex items-end justify-between mb-16">
             <div>
-              <h3 className="text-3xl font-black tracking-tight">ゲーム作品</h3>
+              <h3 className="text-3xl font-black tracking-tight text-white">ゲーム作品</h3>
               <div className="h-1 w-12 bg-red-500 rounded-full mt-3"></div>
             </div>
             <Link href="/gworks" className="text-xs font-black tracking-widest text-gray-500 hover:text-red-500 transition-colors">すべて見る</Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-            {latestGWorks.results.map((work: any) => (
-              <div key={work.id} className="group">
-                <div className="aspect-video rounded-2xl overflow-hidden bg-slate-900 mb-6 shadow-2xl group-hover:shadow-red-500/20 transition-all duration-500 border border-white/5">
-                  {work.thumbnail_url ? (
-                    <img src={work.thumbnail_url} alt={work.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-slate-500 font-bold tracking-widest text-xs uppercase">No Image</div>
-                  )}
-                </div>
-                <h4 className="text-xl font-bold group-hover:text-red-500 transition-colors">{work.title}</h4>
-                <p className="text-gray-500 text-sm line-clamp-2 mt-2 leading-relaxed">{work.description}</p>
-              </div>
-            ))}
-          </div>
+          {/* 一覧ページと同じコンポーネントを使用 */}
+          <GWorksList initialWorks={latestGWorks} />
         </div>
       </section>
 
@@ -86,32 +113,14 @@ export default async function Home() {
         <div className="max-w-6xl mx-auto">
           <div className="flex items-end justify-between mb-16">
             <div>
-              <h3 className="text-3xl font-black tracking-tight">音楽作品</h3>
+              <h3 className="text-3xl font-black tracking-tight text-white">音楽作品</h3>
               <div className="h-1 w-12 bg-red-500 rounded-full mt-3"></div>
             </div>
             <Link href="/mworks" className="text-xs font-black tracking-widest text-gray-500 hover:text-red-500 transition-colors">すべて見る</Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-            {latestMWorks.results.map((work: any) => (
-              <div key={work.id} className="bg-slate-900/40 backdrop-blur-md p-8 rounded-[2.5rem] border border-white/5 shadow-2xl hover:border-red-500/30 transition-all duration-500 group">
-                <div className="aspect-square rounded-2xl overflow-hidden bg-slate-800 mb-8 shadow-inner">
-                  {work.thumbnail_url ? (
-                    <img src={work.thumbnail_url} alt={work.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-slate-500 font-bold tracking-widest text-xs uppercase">No Cover</div>
-                  )}
-                </div>
-                <h4 className="text-xl font-bold mb-2">{work.title}</h4>
-                <p className="text-gray-500 text-xs mb-6 line-clamp-1">{work.description}</p>
-                {work.audio_url && (
-                  <div className="pt-6 border-t border-white/5">
-                    <audio src={work.audio_url} controls className="w-full h-8 opacity-40 hover:opacity-100 transition-opacity invert" />
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+          {/* 一覧ページと同じコンポーネントを使用 */}
+          <MWorksList initialWorks={latestMWorks} />
         </div>
       </section>
 
