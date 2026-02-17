@@ -39,7 +39,7 @@ export default function PublicLayout({
                 <span className="group-hover:text-red-500 transition-colors duration-300 text-white">sm</span>
                 <span className="text-red-500">o</span>
                 <span className="group-hover:text-red-500 transition-colors duration-300 text-white">Tmt</span>
-                <span className="ml-4 group-hover:text-red-500 transition-colors duration-300 text-white tracking-[0.1em]">Planet</span>
+                <span className="ml-4 group-hover:text-red-500 transition-colors duration-300 text-white">Planet</span>
               </Link>
               
               <nav className="hidden md:flex items-center gap-12 pt-1">
