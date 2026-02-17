@@ -1,86 +1,68 @@
 "use client";
 
+import { useActionState } from "react";
 import { login } from "./actions";
-import { useState } from "react";
 
 export const runtime = "edge";
 
 export default function LoginPage() {
-  const [error, setError] = useState<string | null>(null);
-  const [isPending, setIsPending] = useState(false);
+  const [state, formAction, isPending] = useActionState(login, null);
 
-  async function handleSubmit(formData: FormData) {
-    setIsPending(true);
-    setError(null);
-    console.log("Form submitted!");
-    
-    try {
-      const result = await login(null, formData);
-      if (result?.error) {
-        setError(result.error);
-      }
-    } catch (err) {
-      console.error("Submit error:", err);
-      setError("予期せぬエラーが発生したのだ。");
-    } finally {
-      setIsPending(false);
-    }
-  }
+  const inputClasses = "w-full rounded-xl border-gray-300 text-gray-900 text-sm focus:ring-2 focus:ring-sky-400 focus:border-sky-400 border p-3 bg-white transition-all shadow-sm";
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 dark:bg-gray-900 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
-            管理者ログイン
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-            CosmoTMT 管理画面
-          </p>
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+      <div className="max-w-md w-full">
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-sky-500 rounded-2xl shadow-lg shadow-sky-200 mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 00-2 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900">管理者ログイン</h1>
         </div>
-        
-        <form className="mt-8 space-y-6" action={handleSubmit}>
-          {error && (
-            <div className="rounded-md bg-red-50 p-4 text-sm text-red-700 dark:bg-red-900/30 dark:text-red-400">
-              {error}
-            </div>
-          )}
 
-          <div className="-space-y-px rounded-md shadow-sm">
+        <div className="bg-white p-8 rounded-3xl border border-gray-200 shadow-xl shadow-gray-200/50">
+          <form action={formAction} className="space-y-6">
+            {state?.error && (
+              <div className="p-3 bg-red-50 text-red-600 rounded-lg text-xs font-bold border border-red-100 text-center">
+                {state.error}
+              </div>
+            )}
+
             <div>
+              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">メールアドレス</label>
               <input
-                id="email-address"
-                name="email"
                 type="email"
-                autoComplete="email"
+                name="email"
                 required
-                className="relative block w-full rounded-t-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                placeholder="メールアドレス"
+                className={inputClasses}
+                placeholder="admin@example.com"
               />
             </div>
-            <div>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                className="relative block w-full rounded-b-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                placeholder="パスワード"
-              />
-            </div>
-          </div>
 
-          <div>
-            <button
-              type="submit"
-              disabled={isPending}
-              className="group relative flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50"
-            >
-              {isPending ? "ログイン中..." : "ログイン"}
-            </button>
-          </div>
-        </form>
+            <div>
+              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">パスワード</label>
+              <input
+                type="password"
+                name="password"
+                required
+                className={inputClasses}
+                placeholder="••••••••"
+              />
+            </div>
+
+            <div className="pt-2">
+              <button
+                type="submit"
+                disabled={isPending}
+                className="w-full py-4 rounded-2xl text-sm font-bold text-white bg-sky-500 hover:bg-sky-600 transition-all shadow-lg shadow-sky-100 disabled:opacity-50 disabled:shadow-none"
+              >
+                {isPending ? "ログイン中..." : "ログイン"}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );
