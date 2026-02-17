@@ -3,7 +3,6 @@ CREATE TABLE IF NOT EXISTS gworks (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   title TEXT NOT NULL,
   description TEXT,
-  platform TEXT,
   features TEXT,
   development_type TEXT,
   thumbnail_url TEXT,
@@ -29,4 +28,13 @@ CREATE TABLE IF NOT EXISTS gwork_roles (
   PRIMARY KEY (gwork_id, role_id),
   FOREIGN KEY (gwork_id) REFERENCES gworks(id) ON DELETE CASCADE,
   FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
+);
+
+-- ゲーム実績 x プラットフォーム 中間テーブル
+CREATE TABLE IF NOT EXISTS gwork_platforms (
+  gwork_id INTEGER NOT NULL,
+  platform_id INTEGER NOT NULL,
+  PRIMARY KEY (gwork_id, platform_id),
+  FOREIGN KEY (gwork_id) REFERENCES gworks(id) ON DELETE CASCADE,
+  FOREIGN KEY (platform_id) REFERENCES platforms(id) ON DELETE CASCADE
 );
