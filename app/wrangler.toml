@@ -1,0 +1,14 @@
+#:schema node_modules/wrangler/config-schema.json
+name = "cosmotmt"
+compatibility_date = "2024-11-01"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = ".next"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "db"
+database_id = "xxxx-xxxx-xxxx-xxxx"
+
+[[r2_buckets]]
+binding = "R2"
+bucket_name = "storage"
