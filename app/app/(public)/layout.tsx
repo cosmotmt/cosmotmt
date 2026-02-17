@@ -1,5 +1,7 @@
 "use client";
 
+export const runtime = "edge";
+
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -81,6 +83,7 @@ export default function PublicLayout({
                 <span className="ml-4 group-hover:text-red-500 transition-colors duration-300 text-white tracking-[0.1em]">Planet</span>
               </Link>
               
+              {/* Desktop Nav */}
               <nav className="hidden md:flex items-center gap-12 pt-1">
                 {navLinks.map(link => (
                   <Link key={link.href} href={link.href} className="group flex flex-col items-center drop-shadow-sm">
@@ -126,7 +129,7 @@ export default function PublicLayout({
 
           <GlobalPlayer />
 
-          {/* Scroll To Top Button - Hover background to Red */}
+          {/* Scroll To Top Button */}
           <button
             onClick={scrollToTop}
             className={`fixed bottom-28 md:bottom-32 right-6 md:right-10 z-40 w-12 h-12 flex items-center justify-center bg-slate-900/80 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl transition-all duration-500 cursor-pointer group/scroll hover:bg-red-500 hover:border-red-500 ${
