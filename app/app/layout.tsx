@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     description: "ゲームエンジニア兼音楽クリエイター「CosmoTmt」のポートフォリオサイト。",
     images: [
       {
-        url: "/og-image.png", // OGP画像を用意して public フォルダに置くのだ
+        url: "/og-image.webp",
         width: 1200,
         height: 630,
         alt: "CosmoTmt Planet",
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     title: "CosmoTmt Planet",
     description: "ゲームエンジニア兼音楽クリエイター「CosmoTmt」のポートフォリオサイト。",
     creator: "@cosmotmt",
-    images: ["/og-image.png"],
+    images: ["/og-image.webp"],
   },
   alternates: {
     canonical: "https://cosmotmt.jp",
