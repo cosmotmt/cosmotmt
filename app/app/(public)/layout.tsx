@@ -12,6 +12,7 @@ export default function PublicLayout({
   children: React.ReactNode;
 }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showScrollTop, setShowScrollScrollTop] = useState(false);
   const pathname = usePathname();
 
   // ページ遷移時にメニューを閉じる
@@ -28,6 +29,19 @@ export default function PublicLayout({
     }
   }, [isMenuOpen]);
 
+  // スクロール監視
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollScrollTop(window.scrollY > 400);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const navLinks = [
     { href: "/gworks", label: "ゲーム", subLabel: "Games" },
     { href: "/mworks", label: "音楽", subLabel: "Music" },
@@ -37,6 +51,7 @@ export default function PublicLayout({
   return (
     <AudioProvider>
       <div className="relative min-h-screen">
+        {/* Global Cosmic Background */}
         <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
           <div className="absolute top-[-10%] left-[-10%] w-[70%] h-[70%] rounded-full bg-red-900/10 blur-[120px]"></div>
           <div className="absolute bottom-[10%] right-[-5%] w-[60%] h-[60%] rounded-full bg-indigo-900/10 blur-[100px]"></div>
@@ -44,7 +59,7 @@ export default function PublicLayout({
             <div className="w-1 h-1 bg-emerald-100 rounded-full shadow-[10vw_20vh_2px_#b3ffec,30vw_50vh_2px_#d1fae5,70vw_10vh_2px_#b3ffec,90vw_80vh_2px_#d1fae5,50vw_40vh_2px_#b3ffec,15vw_85vh_2px_#b3ffec,45vw_15vh_2px_#d1fae5,75vw_45vh_2px_#b3ffec,5vw_5vh_2px_#d1fae5,85vw_95vh_2px_#b3ffec]"></div>
           </div>
           <div className="absolute inset-0 animate-twinkle-2">
-            <div className="w-0.5 h-0.5 bg-emerald-200 rounded-full shadow-[20vw_70vh_1px_#b3ffec,60vw_30vh_1px_#d1fae5,80vw_90vh_1px_#b3ffec,15vw_10vh_1px_#d1fae5,40vw_60vh_1px_#b3ffec,55vw_85vh_1px_#b3ffec,95vw_15vh_1px_#d1fae5,5vw_35vh_1px_#d1fae5,65vw_95vh_1px_#b3ffec]"></div>
+            <div className="w-0.5 h-0.5 bg-emerald-200 rounded-full shadow-[20vw_70vh_1px_#b3ffec,60vw_30vh_1px_#d1fae5,80vw_90vh_1px_#b3ffec,15vw_10vh_1px_#d1fae5,40vw_60vh_1px_#b3ffec,55vw_85vh_1px_#b3ffec,95vw_15vh_1px_#d1fae5,5vw_35vh_1px_#b3ffec,35vw_5vh_1px_#d1fae5,65vw_95vh_1px_#b3ffec]"></div>
           </div>
           <div className="absolute inset-0 animate-float-bokeh opacity-20">
             <div className="absolute top-[20%] left-[15%] w-32 h-32 bg-emerald-500/20 rounded-full blur-3xl"></div>
@@ -66,7 +81,6 @@ export default function PublicLayout({
                 <span className="ml-4 group-hover:text-red-500 transition-colors duration-300 text-white tracking-[0.1em]">Planet</span>
               </Link>
               
-              {/* Desktop Nav */}
               <nav className="hidden md:flex items-center gap-12 pt-1">
                 {navLinks.map(link => (
                   <Link key={link.href} href={link.href} className="group flex flex-col items-center drop-shadow-sm">
@@ -111,6 +125,19 @@ export default function PublicLayout({
           </main>
 
           <GlobalPlayer />
+
+          {/* Scroll To Top Button - Hover background to Red */}
+          <button
+            onClick={scrollToTop}
+            className={`fixed bottom-28 md:bottom-32 right-6 md:right-10 z-40 w-12 h-12 flex items-center justify-center bg-slate-900/80 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl transition-all duration-500 cursor-pointer group/scroll hover:bg-red-500 hover:border-red-500 ${
+              showScrollTop ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'
+            }`}
+            aria-label="Scroll to top"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white group-hover/scroll:-translate-y-1 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+            </svg>
+          </button>
 
           {/* Footer */}
           <footer className="py-24 border-t border-white/5 bg-slate-950/30 backdrop-blur-md">
