@@ -48,11 +48,6 @@ export default function GWorksList({ initialWorks }: GWorksListProps) {
                 <span className="px-3 py-1 bg-slate-800 text-slate-400 text-[10px] font-black uppercase tracking-widest rounded-full border border-white/5">
                   {work.development_type === 'solo' ? '個人開発' : work.development_type === 'team' ? 'チーム開発' : '業務実績'}
                 </span>
-                {work.duration && (
-                  <span className="px-3 py-1 bg-slate-800 text-slate-400 text-[10px] font-black uppercase tracking-widest rounded-full border border-white/5">
-                    {work.duration}
-                  </span>
-                )}
               </div>
               <h2 className="text-xl font-bold text-white group-hover:text-red-500 transition-colors ml-1">
                 {work.title}

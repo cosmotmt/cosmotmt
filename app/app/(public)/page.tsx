@@ -15,7 +15,7 @@ export default async function Home() {
       (SELECT GROUP_CONCAT(r.name) FROM gwork_roles wr JOIN roles r ON wr.role_id = r.id WHERE wr.gwork_id = w.id) as roles,
       (SELECT GROUP_CONCAT(p.name) FROM gwork_platforms wp JOIN platforms p ON wp.platform_id = p.id WHERE wp.gwork_id = w.id) as platforms
     FROM gworks w
-    ORDER BY w.created_at DESC LIMIT 3
+    ORDER BY w.start_date DESC, w.end_date DESC, w.created_at DESC LIMIT 3
   `).all();
 
   const latestGWorks = gResults.map((work: any) => {
@@ -37,7 +37,7 @@ export default async function Home() {
       (SELECT GROUP_CONCAT(g.name) FROM mwork_genres mg JOIN genres g ON mg.genre_id = g.id WHERE mg.mwork_id = m.id) as genres,
       (SELECT GROUP_CONCAT(r.name) FROM mwork_roles mr JOIN roles r ON mr.role_id = r.id WHERE mr.mwork_id = m.id) as roles
     FROM mworks m
-    ORDER BY m.created_at DESC LIMIT 3
+    ORDER BY m.start_date DESC, m.end_date DESC, m.created_at DESC LIMIT 3
   `).all();
 
   const latestMWorks = mResults.map((work: any) => {

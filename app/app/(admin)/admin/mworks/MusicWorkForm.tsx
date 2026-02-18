@@ -3,6 +3,7 @@
 import { useActionState, useState, useRef } from "react";
 import Link from "next/link";
 import TagInput from "../_components/TagInput";
+import ChipSelect from "../_components/ChipSelect";
 
 interface MusicWorkFormProps {
   action: (prevState: any, formData: FormData) => Promise<any>;
@@ -14,6 +15,7 @@ interface MusicWorkFormProps {
     external_url?: string;
     start_date?: string;
     end_date?: string;
+    development_type?: string;
   };
   roleString?: string;
   genreString?: string;
@@ -110,6 +112,19 @@ export default function MusicWorkForm({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <TagInput name="genres" label="ジャンル" initialValue={genreString} suggestions={existingGenres} />
             <TagInput name="roles" label="担当役割" initialValue={roleString} suggestions={existingRoles} />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <ChipSelect 
+              name="development_type" 
+              label="制作種別" 
+              initialValue={initialData?.development_type || "solo"} 
+              options={[
+                { value: "solo", label: "個人" },
+                { value: "team", label: "チーム" },
+                { value: "work", label: "業務" }
+              ]}
+            />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">

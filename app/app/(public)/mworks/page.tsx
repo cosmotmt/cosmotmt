@@ -18,7 +18,7 @@ export default async function MWorksPage() {
       (SELECT GROUP_CONCAT(g.name) FROM mwork_genres mg JOIN genres g ON mg.genre_id = g.id WHERE mg.mwork_id = m.id) as genres,
       (SELECT GROUP_CONCAT(r.name) FROM mwork_roles mr JOIN roles r ON mr.role_id = r.id WHERE mr.mwork_id = m.id) as roles
     FROM mworks m
-    ORDER BY m.created_at DESC
+    ORDER BY m.start_date DESC, m.end_date DESC, m.created_at DESC
   `).all();
 
   const works = results.map((work: any) => {

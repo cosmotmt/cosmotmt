@@ -19,7 +19,7 @@ export default async function GWorksPage() {
       (SELECT GROUP_CONCAT(r.name) FROM gwork_roles wr JOIN roles r ON wr.role_id = r.id WHERE wr.gwork_id = w.id) as roles,
       (SELECT GROUP_CONCAT(p.name) FROM gwork_platforms wp JOIN platforms p ON wp.platform_id = p.id WHERE wp.gwork_id = w.id) as platforms
     FROM gworks w
-    ORDER BY w.created_at DESC
+    ORDER BY w.start_date DESC, w.end_date DESC, w.created_at DESC
   `).all();
 
   const works = results.map((work: any) => {

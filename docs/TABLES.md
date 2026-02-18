@@ -43,6 +43,7 @@ erDiagram
         integer id PK
         text title
         text description
+        text development_type
         text audio_url
         text thumbnail_url
         text external_url
