@@ -26,5 +26,5 @@
 | 機能 | パス | ファイルパス | 説明 |
 | :--- | :--- | :--- | :--- |
 | アップロード | `/api/upload` | `app/(admin)/api/upload/route.ts`              | R2 へのファイルアップロード |
-| ストレージ | `/api/storage/[filename]` | `app/(public)/api/storage/[filename]/route.ts` | R2 からのファイル取得 |
+| ストレージ | `/api/storage/[filename]` | `app/(admin)/api/storage/[filename]/route.ts` | R2 からのファイル取得 |
 | ログアウト | `/api/logout` | `app/(admin)/api/logout/route.ts`             | ログアウト処理 (POST/GET) |

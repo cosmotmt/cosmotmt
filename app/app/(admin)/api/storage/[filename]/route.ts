@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import { verifySession } from "../../auth";
 
 export const runtime = "edge";
 
 /**
  * ファイルの取得 (GET) - Rangeリクエスト対応版
+ * 公開実績用のため、認証なしでアクセス可能
  */
 export async function GET(
   request: NextRequest,
@@ -16,11 +18,9 @@ export async function GET(
       return new NextResponse("Storage not found", { status: 500 });
     }
 
-    // Rangeヘッダーの解析
     const range = request.headers.get("range");
     
     if (range) {
-      // 部分取得 (Range Request) の処理
       const object = await bucket.head(filename);
       if (!object) return new NextResponse("File not found", { status: 404 });
 
@@ -53,11 +53,10 @@ export async function GET(
       headers.set("ETag", chunk.httpEtag);
 
       return new NextResponse(chunk.body, {
-        status: 206, // Partial Content
+        status: 206,
         headers,
       });
     } else {
-      // 通常の全取得
       const object = await bucket.get(filename);
       if (!object || !object.body) {
         return new NextResponse("File not found", { status: 404 });
@@ -82,11 +81,17 @@ export async function GET(
 
 /**
  * ファイルの削除 (DELETE)
+ * 管理者のみ実行可能
  */
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ filename: string }> }
 ) {
+  // セッションチェック
+  if (!(await verifySession())) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const { filename } = await params;
     const bucket = process.env.R2 as R2Bucket;
