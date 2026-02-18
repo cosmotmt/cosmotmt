@@ -58,7 +58,7 @@ export default function PublicLayout({
             <div className="w-1 h-1 bg-emerald-100 rounded-full shadow-[10vw_20vh_2px_#b3ffec,30vw_50vh_2px_#d1fae5,70vw_10vh_2px_#b3ffec,90vw_80vh_2px_#d1fae5,50vw_40vh_2px_#b3ffec,15vw_85vh_2px_#b3ffec,45vw_15vh_2px_#d1fae5,75vw_45vh_2px_#b3ffec,5vw_5vh_2px_#d1fae5,85vw_95vh_2px_#b3ffec]"></div>
           </div>
           <div className="absolute inset-0 animate-twinkle-2">
-            <div className="w-0.5 h-0.5 bg-emerald-200 rounded-full shadow-[20vw_70vh_1px_#b3ffec,60vw_30vh_1px_#d1fae5,80vw_90vh_1px_#b3ffec,15vw_10vh_1px_#d1fae5,40vw_60vh_1px_#b3ffec,55vw_85vh_1px_#b3ffec,95vw_15vh_1px_#d1fae5,5vw_35vh_1px_#b3ffec,35vw_5vh_1px_#d1fae5,65vw_95vh_1px_#b3ffec]"></div>
+            <div className="w-0.5 h-0.5 bg-emerald-200 rounded-full shadow-[20vw_70vh_1px_#b3ffec,60vw_30vh_1px_#d1fae5,80vw_90vh_1px_#b3ffec,15vw_10vh_1px_#d1fae5,40vw_60vh_1px_#d1fae5,55vw_85vh_1px_#b3ffec,95vw_15vh_1px_#b3ffec,5vw_35vh_1px_#b3ffec,35vw_5vh_1px_#d1fae5,65vw_95vh_1px_#b3ffec]"></div>
           </div>
         </div>
 
@@ -87,7 +87,7 @@ export default function PublicLayout({
               {/* Mobile Menu Button */}
               <button 
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="md:hidden w-12 h-12 -mr-4 flex flex-col items-center justify-center gap-1.5 relative z-50 cursor-pointer"
+                className="md:hidden w-12 h-12 -mr-4 flex flex-col items-center justify-center gap-1 relative z-50 cursor-pointer"
                 aria-label="Menu"
               >
                 <div className={`w-6 h-0.5 bg-white transition-all duration-300 ${isMenuOpen ? 'rotate-45 translate-y-2' : ''}`}></div>
@@ -122,7 +122,7 @@ export default function PublicLayout({
           {/* Scroll To Top Button */}
           <button
             onClick={scrollToTop}
-            className={`fixed bottom-28 md:bottom-32 right-6 md:right-10 z-40 w-10 h-10 flex items-center justify-center bg-slate-900/80 backdrop-blur-xl border border-white/10 shadow-2xl transition-all duration-500 cursor-pointer group/scroll hover:bg-red-500 hover:border-red-500 ${
+            className={`fixed bottom-28 md:bottom-32 right-6 md:right-10 z-40 w-10 h-10 flex items-center justify-center bg-slate-900/80 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl transition-all duration-500 cursor-pointer group/scroll hover:bg-red-500 hover:border-red-500 ${
               showScrollTop ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'
             }`}
             aria-label="Scroll to top"
@@ -135,13 +135,20 @@ export default function PublicLayout({
           {/* Footer */}
           <footer className="py-16 border-t border-white/5 bg-slate-950/40 backdrop-blur-md">
             <div className="max-w-4xl mx-auto px-6 text-center">
-              <div className="flex flex-col items-center gap-6">
-                <div className="flex flex-wrap justify-center gap-x-10 gap-y-4">
-                  <a href="https://x.com/cosmotmt" target="_blank" rel="noopener noreferrer" className="text-[10px] font-black tracking-widest text-gray-500 hover:text-red-500 transition-colors uppercase">X</a>
-                  <a href="https://www.youtube.com/@cosmotmt" target="_blank" rel="noopener noreferrer" className="text-[10px] font-black tracking-widest text-gray-500 hover:text-red-500 transition-colors uppercase">YouTube</a>
+              <div className="flex flex-col items-center gap-8">
+                <div className="flex flex-wrap justify-center gap-x-12 gap-y-4">
+                  <a href="https://x.com/cosmotmt" target="_blank" rel="noopener noreferrer" className="group p-2 -m-2">
+                    <span className="text-xs font-bold text-white group-hover:text-red-500 transition-colors tracking-widest uppercase">X</span>
+                  </a>
+                  <a href="https://www.youtube.com/@cosmotmt" target="_blank" rel="noopener noreferrer" className="group p-2 -m-2">
+                    <span className="text-xs font-bold text-white group-hover:text-red-500 transition-colors tracking-widest uppercase">YouTube</span>
+                  </a>
+                  <a href="https://github.com/cosmotmt" target="_blank" rel="noopener noreferrer" className="group p-2 -m-2">
+                    <span className="text-xs font-bold text-white group-hover:text-red-500 transition-colors tracking-widest uppercase">GitHub</span>
+                  </a>
                 </div>
-                <p className="text-gray-600 text-[9px] font-bold uppercase tracking-[0.4em]">
-                  &copy; {new Date().getFullYear()} CosmoTmt Planet.
+                <p className="text-gray-600 text-[10px] font-medium tracking-[0.2em] uppercase">
+                  &copy; {new Date().getFullYear()} CosmoTmt. All rights reserved.
                 </p>
               </div>
             </div>
