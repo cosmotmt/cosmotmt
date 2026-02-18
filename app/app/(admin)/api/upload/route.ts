@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
+import { verifySession } from "../auth";
 
 export const runtime = "edge";
 
 export async function POST(request: NextRequest) {
+  // セッションチェック
+  if (!(await verifySession())) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const formData = await request.formData();
     const file = formData.get("file") as File;

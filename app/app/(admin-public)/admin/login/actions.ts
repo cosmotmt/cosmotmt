@@ -63,8 +63,18 @@ export async function login(prevState: ActionState, formData: FormData): Promise
       return { error: "メールアドレスかパスワードが間違っています。" };
     }
 
+    // セッションIDの生成 (推測不可能なランダム文字列)
+    const sessionId = crypto.randomUUID();
+    const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24).toISOString(); // 1日後
+
+    // DBにセッションを保存
+    await db
+      .prepare("INSERT INTO sessions (id, admin_id, expires_at) VALUES (?, ?, ?)")
+      .bind(sessionId, admin.id, expiresAt)
+      .run();
+
     const cookieStore = await cookies();
-    cookieStore.set("admin_session", admin.id.toString(), {
+    cookieStore.set("admin_session", sessionId, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",

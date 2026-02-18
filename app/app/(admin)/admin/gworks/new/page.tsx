@@ -1,14 +1,9 @@
 import WorkForm from "../WorkForm";
 import { createGWork } from "../actions";
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 
 export const runtime = "edge";
 
 export default async function NewGWorkPage() {
-  const cookieStore = await cookies();
-  if (!cookieStore.get("admin_session")) redirect("/admin/login");
-
   const db = process.env.DB;
   if (!db) return <div>データベースに接続できません。</div>;
 

@@ -1,14 +1,13 @@
 "use server";
 
-import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { verifySession } from "../../api/auth";
 
 /**
  * お問い合わせメッセージの削除
  */
 export async function deleteContact(id: number) {
-  const cookieStore = await cookies();
-  if (!cookieStore.get("admin_session")) {
+  if (!(await verifySession())) {
     throw new Error("Unauthorized");
   }
 

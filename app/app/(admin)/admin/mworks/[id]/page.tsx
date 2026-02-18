@@ -1,5 +1,4 @@
-import { cookies } from "next/headers";
-import { redirect, notFound } from "next/navigation";
+import { notFound } from "next/navigation";
 import MusicWorkForm from "../MusicWorkForm";
 import { updateMWork } from "../actions";
 
@@ -9,9 +8,6 @@ export default async function EditMWorkPage({ params }: { params: Promise<{ id: 
   const { id } = await params;
   const workId = parseInt(id);
   if (isNaN(workId)) notFound();
-
-  const cookieStore = await cookies();
-  if (!cookieStore.get("admin_session")) redirect("/admin/login");
 
   const db = process.env.DB;
   if (!db) return <div>Database connection failed</div>;

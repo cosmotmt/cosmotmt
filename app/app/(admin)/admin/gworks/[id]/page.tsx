@@ -1,5 +1,4 @@
-import { cookies } from "next/headers";
-import { redirect, notFound } from "next/navigation";
+import { notFound } from "next/navigation";
 import WorkForm from "../WorkForm";
 import { updateGWork } from "../actions";
 
@@ -10,9 +9,6 @@ export default async function EditGWorkPage({ params }: { params: Promise<{ id: 
   const workId = parseInt(id);
 
   if (isNaN(workId)) notFound();
-
-  const cookieStore = await cookies();
-  if (!cookieStore.get("admin_session")) redirect("/admin/login");
 
   const db = process.env.DB;
   if (!db) return <div>データベースに接続できません。</div>;

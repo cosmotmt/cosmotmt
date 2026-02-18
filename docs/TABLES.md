@@ -18,6 +18,13 @@ erDiagram
         datetime created_at
     }
 
+    sessions {
+        text id PK
+        integer admin_id FK
+        datetime expires_at
+        datetime created_at
+    }
+
     gworks {
         integer id PK
         text title
@@ -87,6 +94,7 @@ erDiagram
         datetime created_at "DEFAULT CURRENT_TIMESTAMP"
     }
 
+    admins ||--o{ sessions: "has"
     gworks ||--o{ gwork_techs: "uses"
     techs ||--o{ gwork_techs: "used by"
     gworks ||--o{ gwork_roles: "assigned"

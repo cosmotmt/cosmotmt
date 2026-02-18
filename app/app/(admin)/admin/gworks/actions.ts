@@ -1,8 +1,8 @@
 "use server";
 
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { verifySession } from "../../api/auth";
 
 /**
  * Process tags and return an array of IDs.
@@ -58,8 +58,7 @@ async function deleteFromR2(url: string | null) {
 }
 
 export async function createGWork(prevState: any, formData: FormData) {
-  const cookieStore = await cookies();
-  if (!cookieStore.get("admin_session")) return { error: "Unauthorized" };
+  if (!(await verifySession())) return { error: "Unauthorized" };
 
   const db = process.env.DB;
   if (!db) return { error: "Database connection failed" };
@@ -99,8 +98,7 @@ export async function createGWork(prevState: any, formData: FormData) {
 }
 
 export async function updateGWork(id: number, prevState: any, formData: FormData) {
-  const cookieStore = await cookies();
-  if (!cookieStore.get("admin_session")) return { error: "Unauthorized" };
+  if (!(await verifySession())) return { error: "Unauthorized" };
 
   const db = process.env.DB;
   if (!db) return { error: "Database connection failed" };
@@ -145,8 +143,7 @@ export async function updateGWork(id: number, prevState: any, formData: FormData
 }
 
 export async function deleteGWork(id: number) {
-  const cookieStore = await cookies();
-  if (!cookieStore.get("admin_session")) throw new Error("Unauthorized");
+  if (!(await verifySession())) throw new Error("Unauthorized");
 
   const db = process.env.DB;
   if (!db) throw new Error("Database connection failed");
