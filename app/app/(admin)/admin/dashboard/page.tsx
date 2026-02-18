@@ -1,15 +1,8 @@
 export const runtime = "edge";
 
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 import Link from "next/link";
 
 export default async function AdminDashboard() {
-  const cookieStore = await cookies();
-  if (!cookieStore.get("admin_session")) {
-    redirect("/admin/login");
-  }
-
   const db = process.env.DB;
   if (!db) return <div className="p-8 text-red-500">Database connection failed</div>;
 
