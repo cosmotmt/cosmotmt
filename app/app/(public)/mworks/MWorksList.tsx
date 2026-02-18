@@ -9,7 +9,6 @@ interface MWorksListProps {
 export default function MWorksList({ initialWorks }: MWorksListProps) {
   const { currentTrack, isPlaying, playTrack, duration, formatTime } = useAudio();
 
-  const roleTagClass = "px-3 py-1 bg-white/5 text-white text-[11px] font-bold rounded-lg border border-white/10 tracking-wider whitespace-nowrap";
   const metaTagClass = "px-3 py-1 bg-slate-800 text-slate-400 text-[10px] font-black uppercase tracking-widest rounded-full border border-white/5 whitespace-nowrap";
 
   return (
@@ -40,13 +39,11 @@ export default function MWorksList({ initialWorks }: MWorksListProps) {
               }`}>
                 {isCurrent && isPlaying ? (
                   <div className="relative w-full h-full flex items-center justify-center">
-                    {/* Bars animation - Hidden on mobile when playing to show pause icon instead, or just let them coexist */}
                     <div className="flex gap-1 items-end h-4 opacity-0 md:opacity-100 md:group-hover:opacity-0 transition-opacity">
                       <div className="w-1 bg-red-500 animate-bounce" style={{ animationDuration: '0.5s' }}></div>
                       <div className="w-1 bg-red-500 animate-bounce" style={{ animationDuration: '0.8s' }}></div>
                       <div className="w-1 bg-red-500 animate-bounce" style={{ animationDuration: '0.6s' }}></div>
                     </div>
-                    {/* Pause Icon - Always visible on mobile when playing */}
                     <svg xmlns="http://www.w3.org/2000/svg" className="absolute h-8 w-8 text-white opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
                     </svg>
@@ -61,25 +58,16 @@ export default function MWorksList({ initialWorks }: MWorksListProps) {
 
             {/* Info Content */}
             <div className="flex-1 min-w-0">
-              <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 md:mb-2">
+              <div className="flex flex-col gap-2">
                 <h3 className={`text-base md:text-lg font-bold truncate transition-colors ${isCurrent ? "text-red-500" : "text-white"}`}>
                   {work.title}
                 </h3>
                 <div className="flex flex-wrap gap-1.5">
+                  <span className={metaTagClass}>
+                    {work.development_type === 'solo' ? '個人制作' : work.development_type === 'team' ? 'チーム制作' : '業務実績'}
+                  </span>
                   {work.genres.map((g: string) => (
                     <span key={g} className={metaTagClass}>{g}</span>
-                  ))}
-                  {work.duration && (
-                    <span className={`hidden md:inline-block ${metaTagClass}`}>{work.duration}</span>
-                  )}
-                </div>
-              </div>
-              
-              <div className="hidden md:flex flex-col md:flex-row md:items-center gap-3 md:gap-6">
-                <p className="text-slate-400 text-sm line-clamp-1 flex-1">{work.description}</p>
-                <div className="flex flex-wrap gap-2">
-                  {work.roles.map((r: string) => (
-                    <span key={r} className={roleTagClass}>{r}</span>
                   ))}
                 </div>
               </div>

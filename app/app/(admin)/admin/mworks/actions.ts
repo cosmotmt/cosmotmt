@@ -69,6 +69,7 @@ export async function createMWork(prevState: any, formData: FormData) {
   const external_url = formData.get("external_url") as string;
   const start_date = formData.get("start_date") as string;
   const end_date = formData.get("end_date") as string;
+  const development_type = formData.get("development_type") as string;
 
   const roleNames = (formData.get("roles") as string)?.split(",").filter(Boolean) || [];
   const genreNames = (formData.get("genres") as string)?.split(",").filter(Boolean) || [];
@@ -77,8 +78,8 @@ export async function createMWork(prevState: any, formData: FormData) {
 
   try {
     const result = await db
-      .prepare(`INSERT INTO mworks (title, description, audio_url, thumbnail_url, external_url, start_date, end_date) VALUES (?, ?, ?, ?, ?, ?, ?)`)
-      .bind(title, description, audio_url, thumbnail_url, external_url, start_date || null, end_date || null)
+      .prepare(`INSERT INTO mworks (title, description, audio_url, thumbnail_url, external_url, start_date, end_date, development_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`)
+      .bind(title, description, audio_url, thumbnail_url, external_url, start_date || null, end_date || null, development_type)
       .run();
 
     const mworkId = Number(result.meta.last_row_id);
@@ -108,6 +109,7 @@ export async function updateMWork(id: number, prevState: any, formData: FormData
   const external_url = formData.get("external_url") as string;
   const start_date = formData.get("start_date") as string;
   const end_date = formData.get("end_date") as string;
+  const development_type = formData.get("development_type") as string;
 
   const roleNames = (formData.get("roles") as string)?.split(",").filter(Boolean) || [];
   const genreNames = (formData.get("genres") as string)?.split(",").filter(Boolean) || [];
@@ -116,8 +118,8 @@ export async function updateMWork(id: number, prevState: any, formData: FormData
 
   try {
     await db
-      .prepare(`UPDATE mworks SET title = ?, description = ?, audio_url = ?, thumbnail_url = ?, external_url = ?, start_date = ?, end_date = ? WHERE id = ?`)
-      .bind(title, description, audio_url, thumbnail_url, external_url, start_date || null, end_date || null, id)
+      .prepare(`UPDATE mworks SET title = ?, description = ?, audio_url = ?, thumbnail_url = ?, external_url = ?, start_date = ?, end_date = ?, development_type = ? WHERE id = ?`)
+      .bind(title, description, audio_url, thumbnail_url, external_url, start_date || null, end_date || null, development_type, id)
       .run();
 
     // Clean up old files if changed
