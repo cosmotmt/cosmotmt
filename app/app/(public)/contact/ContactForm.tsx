@@ -112,7 +112,11 @@ export default function ContactForm() {
         ) : (
           <form action={formAction} className="space-y-8">
             {state?.error && <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-sm font-bold text-center">{state.error}</div>}
-            
+
+            <div className="hidden" aria-hidden="true">
+              <input type="text" name="tel" tabIndex={-1} autoComplete="off" />
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-2">
                 <label htmlFor="name" className="block text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] ml-1">お名前</label>

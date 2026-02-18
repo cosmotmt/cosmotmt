@@ -18,6 +18,14 @@ export async function sendContact(prevState: any, formData: FormData): Promise<C
     return { error: "データベース接続に失敗しました。" };
   }
 
+  // ハニーポットチェック (ボット対策)
+  // フォームには存在しないはずの「電話番号(tel)」フィールドに値が入っていたらスパムとみなす
+  const honeypot = formData.get("tel") as string;
+  if (honeypot) {
+    // ボットには成功したように見せかけて、実際には何もしない
+    return { success: true }; 
+  }
+
   const name = formData.get("name") as string;
   const email = formData.get("email") as string;
   const message = formData.get("message") as string;
