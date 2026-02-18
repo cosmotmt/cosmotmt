@@ -61,7 +61,7 @@ export default function PublicLayout({
             <div className="w-1 h-1 bg-emerald-100 rounded-full shadow-[10vw_20vh_2px_#b3ffec,30vw_50vh_2px_#d1fae5,70vw_10vh_2px_#b3ffec,90vw_80vh_2px_#d1fae5,50vw_40vh_2px_#b3ffec,15vw_85vh_2px_#b3ffec,45vw_15vh_2px_#d1fae5,75vw_45vh_2px_#b3ffec,5vw_5vh_2px_#d1fae5,85vw_95vh_2px_#b3ffec]"></div>
           </div>
           <div className="absolute inset-0 animate-twinkle-2">
-            <div className="w-0.5 h-0.5 bg-emerald-200 rounded-full shadow-[20vw_70vh_1px_#b3ffec,60vw_30vh_1px_#d1fae5,80vw_90vh_1px_#b3ffec,15vw_10vh_1px_#d1fae5,40vw_60vh_1px_#b3ffec,55vw_85vh_1px_#b3ffec,95vw_15vh_1px_#d1fae5,5vw_35vh_1px_#b3ffec,35vw_5vh_1px_#d1fae5,65vw_95vh_1px_#b3ffec]"></div>
+            <div className="w-0.5 h-0.5 bg-emerald-200 rounded-full shadow-[20vw_70vh_1px_#b3ffec,60vw_30vh_1px_#d1fae5,80vw_90vh_1px_#b3ffec,15vw_10vh_1px_#d1fae5,40vw_60vh_1px_#b3ffec,55vw_85vh_1px_#d1fae5,95vw_15vh_1px_#b3ffec,5vw_35vh_1px_#d1fae5,35vw_5vh_1px_#d1fae5,65vw_95vh_1px_#b3ffec]"></div>
           </div>
           <div className="absolute inset-0 animate-float-bokeh opacity-20">
             <div className="absolute top-[20%] left-[15%] w-32 h-32 bg-emerald-500/20 rounded-full blur-3xl"></div>

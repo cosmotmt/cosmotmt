@@ -3,11 +3,13 @@ export const runtime = "edge";
 import Link from "next/link";
 import GWorksList from "./gworks/GWorksList";
 import MWorksList from "./mworks/MWorksList";
+import TerminalWindow from "./components/TerminalWindow";
 
 export default async function Home() {
   const db = process.env.DB;
   if (!db) return <div>Database connection failed</div>;
 
+  // ゲーム実績の取得
   const { results: gResults } = await db.prepare(`
     SELECT 
       w.*,
@@ -15,10 +17,10 @@ export default async function Home() {
       (SELECT GROUP_CONCAT(r.name) FROM gwork_roles wr JOIN roles r ON wr.role_id = r.id WHERE wr.gwork_id = w.id) as roles,
       (SELECT GROUP_CONCAT(p.name) FROM gwork_platforms wp JOIN platforms p ON wp.platform_id = p.id WHERE wp.gwork_id = w.id) as platforms
     FROM gworks w
-    ORDER BY w.start_date DESC, w.end_date DESC, w.created_at DESC LIMIT 3
+    ORDER BY w.start_date DESC, w.end_date DESC, w.created_at DESC
   `).all();
 
-  const latestGWorks = gResults.map((work: any) => {
+  const allGWorks = gResults.map((work: any) => {
     let duration = "";
     if (work.start_date && work.end_date) duration = `${work.start_date} 〜 ${work.end_date}`;
     else if (work.start_date) duration = `${work.start_date} 〜`;
@@ -31,16 +33,17 @@ export default async function Home() {
     };
   });
 
+  // 音楽実績の取得
   const { results: mResults } = await db.prepare(`
     SELECT 
       m.*,
       (SELECT GROUP_CONCAT(g.name) FROM mwork_genres mg JOIN genres g ON mg.genre_id = g.id WHERE mg.mwork_id = m.id) as genres,
       (SELECT GROUP_CONCAT(r.name) FROM mwork_roles mr JOIN roles r ON mr.role_id = r.id WHERE mr.mwork_id = m.id) as roles
     FROM mworks m
-    ORDER BY m.start_date DESC, m.end_date DESC, m.created_at DESC LIMIT 3
+    ORDER BY m.start_date DESC, m.end_date DESC, m.created_at DESC
   `).all();
 
-  const latestMWorks = mResults.map((work: any) => {
+  const allMWorks = mResults.map((work: any) => {
     let duration = "";
     if (work.start_date && work.end_date) duration = `${work.start_date} 〜 ${work.end_date}`;
     else if (work.start_date) duration = `${work.start_date} 〜`;
@@ -51,6 +54,18 @@ export default async function Home() {
       roles: work.roles ? work.roles.split(',') : [],
     };
   });
+
+  // タイムライン用データの作成
+  const timelineLogs = [
+    ...allGWorks.map(w => ({ date: w.start_date.substring(0, 7).replace('-', '.'), title: w.title, type: 'ゲーム', href: '/gworks' })),
+    ...allMWorks.map(m => ({ date: m.start_date.substring(0, 7).replace('-', '.'), title: m.title, type: '音楽', href: '/mworks' }))
+  ]
+  .sort((a, b) => b.date.localeCompare(a.date));
+
+  const logs = [
+    ...timelineLogs,
+    { date: "2021.01", title: "地球侵略計画開始", type: "システム", href: null }
+  ];
 
   return (
     <div className="relative overflow-x-hidden">
@@ -90,6 +105,17 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* Timeline Section */}
+      <section className="relative py-20 md:py-32 px-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="mb-12 md:mb-16">
+            <h3 className="text-2xl md:text-3xl font-black tracking-tight text-white">侵略の軌跡</h3>
+            <div className="h-1 w-12 bg-red-500 rounded-full mt-3"></div>
+          </div>
+          <TerminalWindow logs={logs} />
+        </div>
+      </section>
+
       {/* Games Section */}
       <section className="relative py-20 md:py-32 px-6">
         <div className="max-w-6xl mx-auto">
@@ -100,7 +126,7 @@ export default async function Home() {
             </div>
             <Link href="/gworks" className="text-[10px] md:text-xs font-black tracking-widest text-gray-500 hover:text-red-500 transition-colors uppercase">すべて見る</Link>
           </div>
-          <GWorksList initialWorks={latestGWorks} />
+          <GWorksList initialWorks={allGWorks.slice(0, 3)} />
         </div>
       </section>
 
@@ -114,7 +140,7 @@ export default async function Home() {
             </div>
             <Link href="/mworks" className="text-[10px] md:text-xs font-black tracking-widest text-gray-500 hover:text-red-500 transition-colors uppercase">すべて見る</Link>
           </div>
-          <MWorksList initialWorks={latestMWorks} />
+          <MWorksList initialWorks={allMWorks.slice(0, 3)} />
         </div>
       </section>
 
