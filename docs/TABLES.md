@@ -1,4 +1,4 @@
-## 命名規則 (Naming Convention)
+# テーブル定義
 
 コードの簡潔さを重視し、以下の省略形を使用しています。
 
@@ -7,8 +7,6 @@
 - `techs` = Technologies (技術スタック・タグ)
 - `roles` = Roles (担当役割・タグ)
 - `genres` = Genres (音楽ジャンル・タグ)
-
-## ER図
 
 ```mermaid
 erDiagram
