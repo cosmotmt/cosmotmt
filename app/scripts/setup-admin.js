@@ -27,11 +27,15 @@ async function hashPassword(password, salt) {
 }
 
 async function main() {
-  const email = process.argv[2];
-  const password = process.argv[3];
+  const args = process.argv.slice(2);
+  const isRemote = args.includes('--remote');
+  const filteredArgs = args.filter(arg => arg !== '--remote');
+
+  const email = filteredArgs[0];
+  const password = filteredArgs[1];
 
   if (!email || !password) {
-    console.error("使用法: node setup-admin.js <email> <password>");
+    console.error("使用法: node setup-admin.js <email> <password> [--remote]");
     process.exit(1);
   }
 
@@ -39,10 +43,12 @@ async function main() {
   const hashedPassword = await hashPassword(password, salt);
 
   const sql = `INSERT INTO admins (email, password, salt) VALUES ('${email}', '${hashedPassword}', '${salt}');`;
+  const target = isRemote ? '--remote' : '--local';
   
   try {
-    console.log(`Registering admin: ${email}...`);
-    execSync(`npx wrangler d1 execute DB --local --command "${sql}"`, { stdio: 'inherit' });
+    console.log(`Registering admin (${isRemote ? 'REMOTE' : 'LOCAL'}): ${email}...`);
+    // データベース名は wrangler.toml に合わせて 'db' (小文字) に修正
+    execSync(`npx wrangler d1 execute db ${target} --command "${sql}"`, { stdio: 'inherit' });
     console.log("\nSuccess! Admin registered.");
   } catch (err) {
     console.error("\nError: Failed to register admin.");
