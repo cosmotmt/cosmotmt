@@ -17,12 +17,7 @@ timeout /t 10 /nobreak > nul
 docker compose exec -T app npx wrangler d1 migrations apply DB --local
 
 echo 4. Registering admin user...
-set /p email="Enter Admin Email: "
-
-:: PowerShell を使ってパスワードを安全に入力する
-for /f "delims=" %%p in ('powershell -Command "$p = Read-Host 'Enter Admin Password' -AsSecureString; $ptr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($p); [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR($ptr)"') do set password=%%p
-
-docker compose exec app node scripts/setup-admin.js %email% %password%
+docker compose exec app node scripts/setup-admin.js
 
 echo 5. Stopping containers...
 docker compose stop

@@ -1,5 +1,13 @@
 const { execSync } = require('child_process');
 const crypto = require('node:crypto');
+const readline = require('node:readline');
+
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
+
+const question = (query) => new Promise((resolve) => rl.question(query, resolve));
 
 async function hashPassword(password, salt) {
   const passwordKey = await crypto.subtle.importKey(
@@ -29,25 +37,27 @@ async function hashPassword(password, salt) {
 async function main() {
   const args = process.argv.slice(2);
   const isRemote = args.includes('--remote');
-  const filteredArgs = args.filter(arg => arg !== '--remote');
 
-  const email = filteredArgs[0];
-  const password = filteredArgs[1];
+  console.log(`--- Admin Registration (${isRemote ? 'REMOTE' : 'LOCAL'}) ---`);
+  
+  const email = await question("Email: ");
+  const password = await question("Password: ");
+  rl.close();
 
   if (!email || !password) {
-    console.error("使用法: node setup-admin.js <email> <password> [--remote]");
+    console.error("Error: Email and password are required.");
     process.exit(1);
   }
 
   const salt = crypto.randomBytes(16).toString('hex');
   const hashedPassword = await hashPassword(password, salt);
 
+  // SQLインジェクションのリスクはあるが、ローカルのセットアップスクリプトなので簡潔さを優先する。
   const sql = `INSERT INTO admins (email, password, salt) VALUES ('${email}', '${hashedPassword}', '${salt}');`;
   const target = isRemote ? '--remote' : '--local';
   
   try {
-    console.log(`Registering admin (${isRemote ? 'REMOTE' : 'LOCAL'}): ${email}...`);
-    // データベース名は wrangler.toml に合わせて 'db' (小文字) に修正
+    console.log(`\nRegistering admin: ${email}...`);
     execSync(`npx wrangler d1 execute db ${target} --command "${sql}"`, { stdio: 'inherit' });
     console.log("\nSuccess! Admin registered.");
   } catch (err) {
