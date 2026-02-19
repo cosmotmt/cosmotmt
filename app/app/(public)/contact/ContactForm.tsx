@@ -5,46 +5,82 @@ import { sendContact, ContactState } from "./actions";
 
 const FAQ_DATA = [
   {
-    id: "price",
+    id: "music_price",
     category: "音楽",
     question: "制作料金について教えてください",
-    answer: "1曲 15,000円〜 承っております。"
+    answer: "1曲 15,000円（税込）より承っております。"
   },
   {
-    id: "flow",
+    id: "music_delivery",
+    category: "音楽",
+    question: "納期はどのくらいかかりますか？",
+    answer: "ご依頼内容や着手状況によりますが、着手からおよそ1か月程度です。"
+  },
+  {
+    id: "music_flow",
     category: "音楽",
     question: "制作の流れを教えてください",
     answer: "ヒアリング → デモ作成 → 本制作 → 納品 というステップで進めていきます。"
   },
   {
-    id: "revision",
+    id: "music_revision",
     category: "音楽",
     question: "修正は何回まで可能ですか？",
     answer: "回数制限は設けておりません。ご納得いただけるまで修正します。"
   },
   {
-    id: "rights",
+    id: "music_rights",
     category: "音楽",
-    question: "著作権や禁止事項について教えてください",
-    answer: "・著作権：原則として譲渡・放棄いたしません（応相談）\n・禁止事項：自作発言 / AI学習 / 反社・宗教・政治利用"
+    question: "著作権の扱いはどうなりますか？",
+    answer: "著作権の譲渡・放棄は基本行っておりません。商用での独占利用などをご希望の場合は、別途ご相談ください。"
   },
   {
-    id: "credits",
+    id: "music_prohibited",
     category: "音楽",
-    question: "制作した楽曲の実績紹介について",
-    answer: "制作した楽曲は、ご相談の上で実績として紹介させていただくことがございます。"
+    question: "利用にあたっての禁止事項はありますか？",
+    answer: "自作発言、AI学習への利用、および公序良俗に反する目的（反社会的勢力・宗教・政治活動など）での使用は固く禁止しております。"
   },
   {
-    id: "game_req",
+    id: "music_commercial",
+    category: "音楽",
+    question: "商用利用は可能ですか？",
+    answer: "はい、可能です。"
+  },
+  {
+    id: "game_request",
     category: "ゲーム",
     question: "ゲーム開発の依頼は受け付けていますか？",
-    answer: "はい、受け付けております。まずはお気軽にご相談くださいませ。"
+    answer: "はい、承っております。企画の段階から実装まで、幅広く対応可能ですのでまずはお気軽にご相談ください。"
   },
   {
-    id: "other_dev",
+    id: "game_environment",
+    category: "ゲーム",
+    question: "使用するエンジンや言語に指定はありますか？",
+    answer: "基本的には問いませんが、特に Unity, C# を用いた開発を得意としております。"
+  },
+  {
+    id: "game_maintenance",
+    category: "ゲーム",
+    question: "既存のプロジェクトへの機能追加やバグ修正のみも可能ですか？",
+    answer: "はい、可能です。"
+  },
+  {
+    id: "game_update",
+    category: "ゲーム",
+    question: "リリース後の保守・アップデートはお願いできますか？",
+    answer: "はい、受け付けております。"
+  },
+  {
+    id: "game_other_dev",
     category: "ゲーム",
     question: "ゲーム以外の開発依頼は受け付けていますか？",
-    answer: "受付できる可能性がございます。まずはお気軽にご相談くださいませ。"
+    answer: "内容により柔軟に対応いたします。"
+  },
+  {
+    id: "common_nda",
+    category: "共通",
+    question: "秘密保持契約（NDA）の締結は可能ですか？",
+    answer: "はい、可能です。"
   }
 ];
 
@@ -82,6 +118,9 @@ export default function ContactForm() {
     const base = "inline-flex items-center text-[8px] md:text-[9px] font-black px-1 h-3.5 md:h-4 border uppercase transition-all mr-2 vertical-mid ";
     if (category === 'ゲーム') {
       return base + (isHover ? "border-emerald-500/30 text-emerald-500 bg-emerald-500/5 group-hover:border-red-500/50 group-hover:text-red-500" : "border-emerald-500/30 text-emerald-500 bg-emerald-500/5");
+    }
+    if (category === '共通') {
+      return base + (isHover ? "border-amber-500/30 text-amber-500 bg-amber-500/5 group-hover:border-red-500/50 group-hover:text-red-500" : "border-amber-500/30 text-amber-500 bg-amber-500/5");
     }
     return base + (isHover ? "border-sky-500/30 text-sky-500 bg-sky-500/5 group-hover:border-red-500/50 group-hover:text-red-500" : "border-sky-500/30 text-sky-500 bg-sky-500/5");
   };
