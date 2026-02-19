@@ -203,7 +203,7 @@ export default function MusicWorkModal({ isOpen, onClose, work }: MusicWorkModal
 
               {/* Track Info & Controls */}
               <div className="flex-1 space-y-4 md:space-y-6 w-full text-left">
-                <h2 className="text-xl md:text-4xl font-black text-white uppercase tracking-tight leading-tight">
+                <h2 className="text-xl md:text-4xl font-black text-white tracking-tight leading-tight">
                   {work.title}
                 </h2>
 
