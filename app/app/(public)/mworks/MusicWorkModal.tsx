@@ -15,6 +15,7 @@ interface MWork {
   genres: string[];
   roles: string[];
   development_type?: string;
+  features?: string;
 }
 
 interface MusicWorkModalProps {
@@ -67,7 +68,6 @@ export default function MusicWorkModal({ isOpen, onClose, work }: MusicWorkModal
   // Check scrollability when modal opens or content changes
   useEffect(() => {
     if (isOpen && work && !isClosing) {
-      // Small delay to ensure DOM is rendered
       const timer = setTimeout(checkScrollable, 100);
       return () => clearTimeout(timer);
     } else if (!isOpen) {
@@ -106,8 +106,8 @@ export default function MusicWorkModal({ isOpen, onClose, work }: MusicWorkModal
     backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.15) 2px, rgba(255,255,255,0.15) 4px)'
   };
 
-  const TerminalLine = ({ label, content, isLong = false }: { label: string, content: React.ReactNode, isLong?: boolean }) => (
-    <div className="flex items-start gap-3 md:gap-4 min-h-[1.5rem]">
+  const TerminalLine = ({ label, content, show, isLong = false }: { label: string, content: React.ReactNode, show: boolean, isLong?: boolean }) => (
+    <div className={`flex items-start gap-3 md:gap-4 min-h-[1.5rem] transition-all duration-300 ${show ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
       <div className="shrink-0 w-4 flex items-center justify-center h-5 md:h-6">
         <span className="font-black text-sm text-gray-600">{'>'}</span>
       </div>
@@ -155,7 +155,7 @@ export default function MusicWorkModal({ isOpen, onClose, work }: MusicWorkModal
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="bg-white/5 border-b border-white/10 px-4 py-2 h-10 flex items-center justify-between relative z-30">
+          <div className="bg-white/5 border-b border-white/10 px-4 md:px-6 py-2 h-10 flex items-center justify-between relative z-30">
             <div className="flex items-center gap-4 md:gap-6 text-[9px] md:text-[10px] font-bold text-gray-500 tracking-widest uppercase truncate">
               <span>{work.development_type === 'solo' ? '個人制作' : work.development_type === 'team' ? 'チーム制作' : '業務実績'}</span>
               <span>{work.duration || "---"}</span>
@@ -192,7 +192,7 @@ export default function MusicWorkModal({ isOpen, onClose, work }: MusicWorkModal
                           <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
                         </svg>
                       ) : (
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 ml-1" fill="currentColor" viewBox="0 0 24 24">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
                           <path d="M8 5v14l11-7z" />
                         </svg>
                       )}
@@ -235,12 +235,12 @@ export default function MusicWorkModal({ isOpen, onClose, work }: MusicWorkModal
             
             {/* Detailed Logs */}
             <div className="space-y-4 md:space-y-5">
-              <TerminalLine label="概要" content={work.description || "説明はありません。"} isLong={true} />
+              <TerminalLine label="概要" content={work.description || "説明はありません。"} show={true} isLong={true} />
               {work.roles.length > 0 && (
-                <TerminalLine label="担当" content={work.roles.join(", ")} />
+                <TerminalLine label="担当" content={work.roles.join(", ")} show={true} />
               )}
               {work.features && (
-                <TerminalLine label="機能" content={work.features} isLong={true} />
+                <TerminalLine label="機能" content={work.features} show={true} isLong={true} />
               )}
             </div>
           </div>
