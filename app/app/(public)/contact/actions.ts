@@ -19,10 +19,8 @@ export async function sendContact(prevState: any, formData: FormData): Promise<C
   }
 
   // ハニーポットチェック (ボット対策)
-  // フォームには存在しないはずの「電話番号(tel)」フィールドに値が入っていたらスパムとみなす
   const honeypot = formData.get("tel") as string;
   if (honeypot) {
-    // ボットには成功したように見せかけて、実際には何もしない
     return { success: true }; 
   }
 
@@ -49,10 +47,36 @@ export async function sendContact(prevState: any, formData: FormData): Promise<C
   }
 
   try {
+    // 1. データベースに保存
     await db
       .prepare("INSERT INTO contacts (name, email, message) VALUES (?, ?, ?)")
       .bind(name, email, message)
       .run();
+
+    // 2. Discordへ通知 (環境変数から取得)
+    const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
+    
+    if (webhookUrl) {
+      const discordMessage = {
+        embeds: [{
+          title: "📩 NEW_CONTACT_RECEIVED",
+          color: 0xff0000,
+          fields: [
+            { name: "NAME", value: name, inline: true },
+            { name: "EMAIL", value: email, inline: true },
+            { name: "MESSAGE", value: message }
+          ],
+          footer: { text: "CosmoTmt System Console" },
+          timestamp: new Date().toISOString()
+        }]
+      };
+
+      await fetch(webhookUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(discordMessage),
+      });
+    }
 
     revalidatePath("/admin/contacts");
     

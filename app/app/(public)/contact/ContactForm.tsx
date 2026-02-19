@@ -84,11 +84,11 @@ export default function ContactForm() {
         </div>
 
         <div className="p-4 md:p-10 space-y-6 relative min-h-[400px] flex flex-col">
-          <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.05)_50%)] bg-[length:100%_4px] z-10"></div>
+          <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%),linear-gradient(90deg,rgba(255,0,0,0.03),rgba(0,255,0,0.01),rgba(0,0,255,0.03))] bg-[length:100%_4px,3px_100%] z-10"></div>
 
           {/* Question List */}
           <div className="relative z-20">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 md:gap-x-12 gap-y-2 md:gap-y-1">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-1">
               {FAQ_DATA.map((item) => (
                 <button
                   key={item.id}
@@ -147,7 +147,7 @@ export default function ContactForm() {
               ) : (
                 <div className="flex items-center">
                   <div className="shrink-0 w-4 flex items-center justify-center h-5 md:h-6 mr-3 md:mr-4">
-                    <span className="text-gray-700 font-black text-sm">{'>'}</span>
+                    <span className="text-gray-700 font-black text-sm animate-pulse">{'>'}</span>
                   </div>
                   <div className="w-2 h-4 bg-gray-700 animate-pulse"></div>
                 </div>
@@ -157,7 +157,7 @@ export default function ContactForm() {
         </div>
       </div>
 
-      {/* Form Section */}
+      {/* Form Section: Terminal Window Style */}
       <div className="relative bg-slate-950/70 backdrop-blur-lg border border-white/10 rounded-xl overflow-hidden shadow-2xl flex flex-col">
         <div className="bg-white/5 border-b border-white/10 px-4 py-2 flex items-center justify-end relative z-30">
           <span className="text-[10px] font-bold text-gray-500 tracking-widest uppercase">CONTACT</span>
@@ -175,12 +175,21 @@ export default function ContactForm() {
                 onClick={() => window.location.reload()} 
                 className="mt-12 text-[10px] font-black text-gray-500 hover:text-red-500 transition-colors tracking-[0.3em] uppercase cursor-pointer"
               >
-                {'>'} SEND_NEW_MESSAGE
+                {'>'} 新しいメッセージを送信
               </button>
             </div>
           ) : (
             <form action={formAction} className="relative z-20 space-y-6 md:space-y-8">
-              {state?.error && <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-bold text-center uppercase">[ ERROR: {state.error} ]</div>}
+              {state?.error && (
+                <div className="flex items-start gap-4 p-4 bg-red-500/5 border border-red-500/20 text-red-500">
+                  <div className="shrink-0 w-4 flex items-center justify-center h-5 md:h-6 mr-0">
+                    <span className="font-black text-sm">!</span>
+                  </div>
+                  <p className="text-xs md:text-sm font-bold uppercase tracking-tight">
+                    ERROR: {state.error}
+                  </p>
+                </div>
+              )}
 
               <div className="hidden" aria-hidden="true">
                 <input type="text" name="tel" tabIndex={-1} autoComplete="off" />
@@ -200,7 +209,12 @@ export default function ContactForm() {
                       className={`w-full bg-[#020617] border px-4 py-2 text-xs md:text-base text-white focus:outline-none focus:border-red-500 transition-colors placeholder:text-gray-600 rounded-none ${state?.errors?.name ? 'border-red-500/50' : 'border-white/10'}`} 
                       placeholder="cosmotmt" 
                     />
-                    {state?.errors?.name && <p className="text-red-500 text-[9px] font-bold mt-1">! {state.errors.name[0]}</p>}
+                    {state?.errors?.name && (
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-red-500 font-black text-[10px]">!</span>
+                        <p className="text-red-500 text-[9px] font-bold uppercase tracking-tighter">{state.errors.name[0]}</p>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -217,7 +231,12 @@ export default function ContactForm() {
                       className={`w-full bg-[#020617] border px-4 py-2 text-xs md:text-base text-white focus:outline-none focus:border-red-500 transition-colors placeholder:text-gray-600 rounded-none ${state?.errors?.email ? 'border-red-500/50' : 'border-white/10'}`} 
                       placeholder="example@cosmotmt.jp" 
                     />
-                    {state?.errors?.email && <p className="text-red-500 text-[9px] font-bold mt-1">! {state.errors.email[0]}</p>}
+                    {state?.errors?.email && (
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-red-500 font-black text-[10px]">!</span>
+                        <p className="text-red-500 text-[9px] font-bold uppercase tracking-tighter">{state.errors.email[0]}</p>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -234,7 +253,12 @@ export default function ContactForm() {
                       className={`w-full bg-[#020617] border px-4 py-3 text-xs md:text-base text-white focus:outline-none focus:border-red-500 transition-colors placeholder:text-gray-600 resize-none rounded-none ${state?.errors?.message ? 'border-red-500/50' : 'border-white/10'}`}
                       placeholder="ご自由にご記入ください"
                     ></textarea>
-                    {state?.errors?.message && <p className="text-red-500 text-[9px] font-bold mt-1">! {state.errors.message[0]}</p>}
+                    {state?.errors?.message && (
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-red-500 font-black text-[10px]">!</span>
+                        <p className="text-red-500 text-[9px] font-bold uppercase tracking-tighter">{state.errors.message[0]}</p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
