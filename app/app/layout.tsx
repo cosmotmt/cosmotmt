@@ -1,6 +1,6 @@
 export const runtime = "edge";
 
-import type { Metadata } from "next";
+import { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -15,6 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://cosmotmt.jp"),
   title: {
     default: "CosmoTmt Planet",
     template: "%s | CosmoTmt Planet"
@@ -44,6 +45,11 @@ export const metadata: Metadata = {
     description: "ゲームエンジニア兼音楽クリエイター「CosmoTmt」のポートフォリオサイト。",
     creator: "@cosmotmt",
     images: ["/og-image.webp"],
+  },
+  icons: {
+    icon: '/icon.png',
+    shortcut: '/icon.png',
+    apple: '/icon.png',
   },
   alternates: {
     canonical: "https://cosmotmt.jp",

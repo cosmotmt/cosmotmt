@@ -59,12 +59,12 @@ export async function sendContact(prevState: any, formData: FormData): Promise<C
     if (webhookUrl) {
       const discordMessage = {
         embeds: [{
-          title: "📩 NEW_CONTACT_RECEIVED",
+          title: "お問い合わせを受け付けました",
           color: 0xff0000,
           fields: [
-            { name: "NAME", value: name, inline: true },
-            { name: "EMAIL", value: email, inline: true },
-            { name: "MESSAGE", value: message }
+            { name: "お名前", value: name, inline: true },
+            { name: "メールアドレス", value: email, inline: true },
+            { name: "メッセージ", value: message }
           ],
           footer: { text: "CosmoTmt System Console" },
           timestamp: new Date().toISOString()
