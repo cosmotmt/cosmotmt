@@ -23,24 +23,18 @@ const FAQ_DATA = [
     answer: "回数制限は設けておりません。ご納得いただけるまで修正します。"
   },
   {
-    id: "rights",
-    category: "音楽",
     question: "著作権や禁止事項について教えてください",
     answer: "・著作権：原則として譲渡・放棄いたしません（応相談）\n・禁止事項：自作発言 / AI学習 / 反社・宗教・政治利用"
   },
   {
-    id: "credits",
-    category: "音楽",
     question: "制作した楽曲の実績紹介について",
     answer: "制作した楽曲は、ご相談の上で実績として紹介させていただくことがございます。"
   },
   {
-    id: "game_req",
-    category: "ゲーム",
     question: "ゲーム開発の依頼は受け付けていますか？",
     answer: "はい、受け付けております。まずはお気軽にご相談くださいませ。"
   }
-];
+].map((item, index) => ({ ...item, id: `faq-${index}`, category: item.category || "ゲーム" }));
 
 interface FaqLog {
   id: string;
@@ -90,7 +84,7 @@ export default function ContactForm() {
         </div>
 
         <div className="p-4 md:p-10 space-y-6 relative min-h-[400px] flex flex-col">
-          <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%),linear-gradient(90deg,rgba(255,0,0,0.03),rgba(0,255,0,0.01),rgba(0,0,255,0.03))] bg-[length:100%_4px,3px_100%] z-10"></div>
+          <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.05)_50%)] bg-[length:100%_4px] z-10"></div>
 
           {/* Question List */}
           <div className="relative z-20">
@@ -125,10 +119,7 @@ export default function ContactForm() {
                 faqLogs.map((log, index) => {
                   const isLatest = index === faqLogs.length - 1;
                   return (
-                    <div 
-                      key={`${log.id}-${log.timestamp}`} 
-                      className={`space-y-1 transition-opacity duration-500 ${isLatest ? 'opacity-100' : 'opacity-30 hidden md:block'}`}
-                    >
+                    <div key={`${log.id}-${log.timestamp}`} className={`space-y-1 transition-opacity duration-500 ${isLatest ? 'opacity-100' : 'opacity-30 hidden md:block'}`}>
                       {/* Question Log */}
                       <div className="flex items-start">
                         <div className="shrink-0 w-4 flex items-center justify-center h-5 md:h-6 mr-3 md:mr-4">
@@ -156,9 +147,9 @@ export default function ContactForm() {
               ) : (
                 <div className="flex items-center">
                   <div className="shrink-0 w-4 flex items-center justify-center h-5 md:h-6 mr-3 md:mr-4">
-                    <span className="text-gray-700 font-black text-sm animate-pulse">_</span>
+                    <span className="text-gray-700 font-black text-sm">{'>'}</span>
                   </div>
-                  <span className="text-[10px] md:text-[11px] font-black uppercase tracking-[0.2em] text-gray-700">AWAITING_QUERY...</span>
+                  <div className="w-2 h-4 bg-gray-700 animate-pulse"></div>
                 </div>
               )}
             </div>
