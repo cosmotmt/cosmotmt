@@ -45,6 +45,11 @@ export const metadata: Metadata = {
     creator: "@cosmotmt",
     images: ["/og-image.webp"],
   },
+  icons: {
+    icon: '/icon.png',
+    shortcut: '/icon.png',
+    apple: '/icon.png',
+  },
   alternates: {
     canonical: "https://cosmotmt.jp",
   },
