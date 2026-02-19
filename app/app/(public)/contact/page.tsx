@@ -18,8 +18,11 @@ export default function ContactPage() {
             <div className="flex-1 h-px bg-white/10"></div>
           </div>
           
-          <div className="flex items-start gap-4">
-            <span className="text-gray-600 font-black shrink-0">#</span>
+          {/* Description: Aligned with terminal internal content */}
+          <div className="flex items-start px-4 md:px-10">
+            <div className="shrink-0 w-4 flex items-center justify-center h-5 md:h-6 mr-3 md:mr-4">
+              <span className="text-gray-600 font-black">#</span>
+            </div>
             <p className="text-gray-400 text-sm md:text-base leading-relaxed max-w-2xl">
               お仕事のご依頼やお見積もりなど、お気軽にお問い合わせください。
             </p>
