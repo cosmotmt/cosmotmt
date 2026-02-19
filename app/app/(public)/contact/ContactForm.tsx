@@ -191,7 +191,7 @@ export default function ContactForm() {
                 onClick={() => window.location.reload()} 
                 className="mt-12 text-[10px] font-black text-gray-500 hover:text-red-500 transition-colors tracking-[0.3em] uppercase cursor-pointer"
               >
-                {'>'} SEND_NEW_MESSAGE
+                {'>'} 新しいメッセージを送信
               </button>
             </div>
           ) : (
