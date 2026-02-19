@@ -23,18 +23,24 @@ const FAQ_DATA = [
     answer: "回数制限は設けておりません。ご納得いただけるまで修正します。"
   },
   {
+    id: "rights",
+    category: "音楽",
     question: "著作権や禁止事項について教えてください",
     answer: "・著作権：原則として譲渡・放棄いたしません（応相談）\n・禁止事項：自作発言 / AI学習 / 反社・宗教・政治利用"
   },
   {
+    id: "credits",
+    category: "音楽",
     question: "制作した楽曲の実績紹介について",
     answer: "制作した楽曲は、ご相談の上で実績として紹介させていただくことがございます。"
   },
   {
+    id: "game_req",
+    category: "ゲーム",
     question: "ゲーム開発の依頼は受け付けていますか？",
     answer: "はい、受け付けております。まずはお気軽にご相談くださいませ。"
   }
-].map((item, index) => ({ ...item, id: `faq-${index}`, category: item.category || "ゲーム" }));
+];
 
 interface FaqLog {
   id: string;
@@ -67,7 +73,7 @@ export default function ContactForm() {
   }, [faqLogs]);
 
   const getTagClass = (category: string, isHover: boolean = false) => {
-    const base = "inline-block text-[8px] md:text-[9px] font-black px-1 py-0.5 border leading-none uppercase transition-all mr-2 ";
+    const base = "inline-flex items-center text-[8px] md:text-[9px] font-black px-1 h-3.5 md:h-4 border uppercase transition-all mr-2 vertical-mid ";
     if (category === 'ゲーム') {
       return base + (isHover ? "border-emerald-500/30 text-emerald-500 bg-emerald-500/5 group-hover:border-red-500/50 group-hover:text-red-500" : "border-emerald-500/30 text-emerald-500 bg-emerald-500/5");
     }
@@ -76,6 +82,10 @@ export default function ContactForm() {
 
   return (
     <div className="max-w-4xl mx-auto font-mono">
+      <style jsx global>{`
+        .vertical-mid { vertical-align: middle; margin-top: -2px; }
+      `}</style>
+
       {/* FAQ Terminal Window */}
       <div className="relative bg-slate-950/70 backdrop-blur-lg border border-white/10 rounded-xl overflow-hidden shadow-2xl flex flex-col mb-12 md:mb-16">
         {/* Header */}
@@ -84,7 +94,7 @@ export default function ContactForm() {
         </div>
 
         <div className="p-4 md:p-10 space-y-6 relative min-h-[400px] flex flex-col">
-          <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%),linear-gradient(90deg,rgba(255,0,0,0.03),rgba(0,255,0,0.01),rgba(0,0,255,0.03))] bg-[length:100%_4px,3px_100%] z-10"></div>
+          <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%)] bg-[length:100%_4px] z-10"></div>
 
           {/* Question List */}
           <div className="relative z-20">
@@ -98,7 +108,7 @@ export default function ContactForm() {
                   <div className="shrink-0 w-4 flex items-center justify-center h-5 md:h-6 mr-3 md:mr-4">
                     <span className="font-black text-sm text-gray-700 group-hover:text-red-500 transition-colors">{'>'}</span>
                   </div>
-                  <div className="text-xs md:text-base font-bold text-gray-500 group-hover:text-red-500 transition-colors leading-relaxed md:leading-6">
+                  <div className="text-xs md:text-base font-bold text-gray-500 group-hover:text-red-500 transition-colors leading-5 md:leading-6">
                     <span className={getTagClass(item.category, true)}>{item.category}</span>
                     {item.question}
                   </div>
@@ -125,8 +135,8 @@ export default function ContactForm() {
                         <div className="shrink-0 w-4 flex items-center justify-center h-5 md:h-6 mr-3 md:mr-4">
                           <span className="text-gray-600 font-black text-sm">{'>'}</span>
                         </div>
-                        <div className="text-xs md:text-base font-bold text-gray-400 leading-relaxed md:leading-6">
-                          <span className="text-[10px] md:text-[11px] font-black text-gray-500 uppercase tracking-widest mr-2">Q:</span>
+                        <div className="text-xs md:text-base font-bold text-gray-400 leading-5 md:leading-6">
+                          <span className="text-[10px] md:text-[11px] font-black text-gray-500 uppercase tracking-widest mr-2 inline-block align-middle" style={{ marginTop: '-2px' }}>Q:</span>
                           <span className={getTagClass(log.category)}>{log.category}</span>
                           {log.question}
                         </div>
@@ -137,7 +147,7 @@ export default function ContactForm() {
                         <div className="shrink-0 w-4 flex items-center justify-center h-5 md:h-6 mr-3 md:mr-4">
                           <span className="text-gray-600 font-black text-sm">#</span>
                         </div>
-                        <p className={`text-xs md:text-base font-bold leading-relaxed md:leading-6 whitespace-pre-wrap max-w-2xl ${isLatest ? 'text-gray-300' : 'text-gray-500'}`}>
+                        <p className={`text-xs md:text-base leading-5 md:leading-6 whitespace-pre-wrap max-w-2xl ${isLatest ? 'text-gray-300' : 'text-gray-500'}`}>
                           {log.answer}
                         </p>
                       </div>
@@ -157,7 +167,7 @@ export default function ContactForm() {
         </div>
       </div>
 
-      {/* Form Section: Terminal Window Style */}
+      {/* Form Section */}
       <div className="relative bg-slate-950/70 backdrop-blur-lg border border-white/10 rounded-xl overflow-hidden shadow-2xl flex flex-col">
         <div className="bg-white/5 border-b border-white/10 px-4 py-2 flex items-center justify-end relative z-30">
           <span className="text-[10px] font-bold text-gray-500 tracking-widest uppercase">CONTACT</span>
