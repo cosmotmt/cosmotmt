@@ -7,20 +7,30 @@ export default async function Home() {
   const db = process.env.DB;
   if (!db) return <div>Database connection failed</div>;
 
-  // ゲーム実績の取得
+  // ゲーム実績の取得 (終了日時を優先)
   const { results: gResults } = await db.prepare(`
-    SELECT title, start_date FROM gworks WHERE start_date IS NOT NULL
+    SELECT title, COALESCE(end_date, start_date) as display_date FROM gworks WHERE start_date IS NOT NULL
   `).all();
 
-  // 音楽実績の取得
+  // 音楽実績の取得 (終了日時を優先)
   const { results: mResults } = await db.prepare(`
-    SELECT title, start_date FROM mworks WHERE start_date IS NOT NULL
+    SELECT title, COALESCE(end_date, start_date) as display_date FROM mworks WHERE start_date IS NOT NULL
   `).all();
 
   // タイムライン用データの作成
   const timelineLogs = [
-    ...gResults.map((w: any) => ({ date: w.start_date.substring(0, 7).replace('-', '.'), title: w.title, type: 'ゲーム', href: '/gworks' })),
-    ...mResults.map((m: any) => ({ date: m.start_date.substring(0, 7).replace('-', '.'), title: m.title, type: '音楽', href: '/mworks' }))
+    ...gResults.map((w: any) => ({ 
+      date: w.display_date.substring(0, 7).replace('-', '.'), 
+      title: w.title, 
+      type: 'ゲーム', 
+      href: '/gworks' 
+    })),
+    ...mResults.map((m: any) => ({ 
+      date: m.display_date.substring(0, 7).replace('-', '.'), 
+      title: m.title, 
+      type: '音楽', 
+      href: '/mworks' 
+    }))
   ];
 
   // 固定ログの追加
@@ -43,7 +53,7 @@ export default async function Home() {
       <div className="absolute inset-0 bg-red-600 opacity-0 group-hover:opacity-100 translate-x-0 translate-y-0 group-hover:translate-x-1 group-hover:translate-y-1 transition-all duration-200"></div>
       
       <Link href={href} className="relative inline-flex items-center justify-center px-8 py-3 bg-white text-slate-950 font-mono transition-all duration-200 hover:bg-red-500 hover:text-white overflow-hidden border border-transparent hover:-translate-x-0.5 hover:-translate-y-0.5">
-        {/* Stripe Texture - Strictly hidden by default */}
+        {/* Stripe Texture */}
         <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity" style={stripeStyle}></div>
         
         <span className="relative z-10 text-[10px] md:text-xs font-black tracking-[0.2em] uppercase">
