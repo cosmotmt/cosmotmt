@@ -88,7 +88,7 @@ export default function ContactForm() {
 
           {/* Question List */}
           <div className="relative z-20">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 md:gap-x-12 gap-y-2 md:gap-y-1">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-1">
               {FAQ_DATA.map((item) => (
                 <button
                   key={item.id}
@@ -180,7 +180,16 @@ export default function ContactForm() {
             </div>
           ) : (
             <form action={formAction} className="relative z-20 space-y-6 md:space-y-8">
-              {state?.error && <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-bold text-center uppercase">[ ERROR: {state.error} ]</div>}
+              {state?.error && (
+                <div className="flex items-start gap-4 p-4 bg-red-500/5 border border-red-500/20 text-red-500">
+                  <div className="shrink-0 w-4 flex items-center justify-center h-5 md:h-6 mr-0">
+                    <span className="font-black text-sm">!</span>
+                  </div>
+                  <p className="text-xs md:text-sm font-bold uppercase tracking-tight">
+                    ERROR: {state.error}
+                  </p>
+                </div>
+              )}
 
               <div className="hidden" aria-hidden="true">
                 <input type="text" name="tel" tabIndex={-1} autoComplete="off" />
@@ -200,7 +209,12 @@ export default function ContactForm() {
                       className={`w-full bg-[#020617] border px-4 py-2 text-xs md:text-base text-white focus:outline-none focus:border-red-500 transition-colors placeholder:text-gray-600 rounded-none ${state?.errors?.name ? 'border-red-500/50' : 'border-white/10'}`} 
                       placeholder="cosmotmt" 
                     />
-                    {state?.errors?.name && <p className="text-red-500 text-[9px] font-bold mt-1">! {state.errors.name[0]}</p>}
+                    {state?.errors?.name && (
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-red-500 font-black text-[10px]">!</span>
+                        <p className="text-red-500 text-[9px] font-bold uppercase tracking-tighter">{state.errors.name[0]}</p>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -217,7 +231,12 @@ export default function ContactForm() {
                       className={`w-full bg-[#020617] border px-4 py-2 text-xs md:text-base text-white focus:outline-none focus:border-red-500 transition-colors placeholder:text-gray-600 rounded-none ${state?.errors?.email ? 'border-red-500/50' : 'border-white/10'}`} 
                       placeholder="example@cosmotmt.jp" 
                     />
-                    {state?.errors?.email && <p className="text-red-500 text-[9px] font-bold mt-1">! {state.errors.email[0]}</p>}
+                    {state?.errors?.email && (
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-red-500 font-black text-[10px]">!</span>
+                        <p className="text-red-500 text-[9px] font-bold uppercase tracking-tighter">{state.errors.email[0]}</p>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -234,7 +253,12 @@ export default function ContactForm() {
                       className={`w-full bg-[#020617] border px-4 py-3 text-xs md:text-base text-white focus:outline-none focus:border-red-500 transition-colors placeholder:text-gray-600 resize-none rounded-none ${state?.errors?.message ? 'border-red-500/50' : 'border-white/10'}`}
                       placeholder="ご自由にご記入ください"
                     ></textarea>
-                    {state?.errors?.message && <p className="text-red-500 text-[9px] font-bold mt-1">! {state.errors.message[0]}</p>}
+                    {state?.errors?.message && (
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-red-500 font-black text-[10px]">!</span>
+                        <p className="text-red-500 text-[9px] font-bold uppercase tracking-tighter">{state.errors.message[0]}</p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
