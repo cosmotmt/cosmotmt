@@ -1,148 +1,269 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useState, useRef, useEffect } from "react";
 import { sendContact, ContactState } from "./actions";
 
-const MUSIC_FAQ = [
+const FAQ_DATA = [
   {
+    id: "price",
+    category: "音楽",
     question: "制作料金について教えてください",
     answer: "1曲 15,000円〜 承っております。"
   },
   {
+    id: "flow",
+    category: "音楽",
     question: "制作の流れを教えてください",
-    answer: "ヒアリング → デモ作成 → 本制作 → 納品\nというステップで進めていきます。"
+    answer: "ヒアリング → デモ作成 → 本制作 → 納品 というステップで進めていきます。"
   },
   {
+    id: "revision",
+    category: "音楽",
     question: "修正は何回まで可能ですか？",
     answer: "回数制限は設けておりません。ご納得いただけるまで修正します。"
   },
   {
+    id: "rights",
+    category: "音楽",
     question: "著作権や禁止事項について教えてください",
     answer: "・著作権：原則として譲渡・放棄いたしません（応相談）\n・禁止事項：自作発言 / AI学習 / 反社・宗教・政治利用"
   },
   {
+    id: "credits",
+    category: "音楽",
     question: "制作した楽曲の実績紹介について",
     answer: "制作した楽曲は、ご相談の上で実績として紹介させていただくことがございます。"
-  }
-];
-
-const GAME_FAQ = [
+  },
   {
+    id: "game_req",
+    category: "ゲーム",
     question: "ゲーム開発の依頼は受け付けていますか？",
     answer: "はい、受け付けております。まずはお気軽にご相談くださいませ。"
   }
 ];
 
+interface FaqLog {
+  id: string;
+  category: string;
+  question: string;
+  answer: string;
+  timestamp: number;
+}
+
 export default function ContactForm() {
   const [state, formAction, isPending] = useActionState(sendContact, {} as ContactState);
-  const [openMusicIndex, setOpenMusicIndex] = useState<number | null>(null);
-  const [openGameIndex, setOpenGameIndex] = useState<number | null>(null);
+  const [faqLogs, setFaqLogs] = useState<FaqLog[]>([]);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const stripeStyle = {
+    backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.15) 2px, rgba(255,255,255,0.15) 4px)'
+  };
+
+  const handleFaqClick = (item: typeof FAQ_DATA[0]) => {
+    setFaqLogs(prev => {
+      const newLogs = [...prev, { ...item, timestamp: Date.now() }];
+      return newLogs.slice(-3);
+    });
+  };
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [faqLogs]);
+
+  const getTagClass = (category: string, isHover: boolean = false) => {
+    const base = "inline-block text-[8px] md:text-[9px] font-black px-1 py-0.5 border leading-none uppercase transition-all mr-2 ";
+    if (category === 'ゲーム') {
+      return base + (isHover ? "border-emerald-500/30 text-emerald-500 bg-emerald-500/5 group-hover:border-red-500/50 group-hover:text-red-500" : "border-emerald-500/30 text-emerald-500 bg-emerald-500/5");
+    }
+    return base + (isHover ? "border-sky-500/30 text-sky-500 bg-sky-500/5 group-hover:border-red-500/50 group-hover:text-red-500" : "border-sky-500/30 text-sky-500 bg-sky-500/5");
+  };
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-16">
-        <div className="space-y-10">
-          <div>
-            <h3 className="text-2xl font-black tracking-tight text-white">音楽</h3>
-            <div className="h-1 w-10 bg-red-500 rounded-full mt-3"></div>
-          </div>
-          <div className="space-y-3">
-            {MUSIC_FAQ.map((item, index) => (
-              <div key={index} className="bg-slate-900/40 backdrop-blur-md border border-white/5 rounded-2xl overflow-hidden transition-all hover:border-white/10">
-                <button
-                  onClick={() => setOpenMusicIndex(openMusicIndex === index ? null : index)}
-                  className="w-full px-6 py-5 flex items-center justify-between text-left cursor-pointer"
-                >
-                  <span className="text-sm font-bold text-gray-200">{item.question}</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 text-gray-500 transition-transform duration-300 ${openMusicIndex === index ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-                <div className={`px-6 transition-all duration-300 ease-in-out ${openMusicIndex === index ? 'max-h-[32rem] pb-6 opacity-100' : 'max-h-0 opacity-0'} overflow-hidden`}>
-                  <p className="text-sm text-gray-400 leading-relaxed whitespace-pre-wrap">{item.answer}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+    <div className="max-w-4xl mx-auto font-mono">
+      {/* FAQ Terminal Window */}
+      <div className="relative bg-slate-950/70 backdrop-blur-lg border border-white/10 rounded-xl overflow-hidden shadow-2xl flex flex-col mb-12 md:mb-16">
+        {/* Header */}
+        <div className="bg-white/5 border-b border-white/10 px-4 py-2 flex items-center justify-end relative z-30">
+          <span className="text-[10px] font-bold text-gray-500 tracking-widest uppercase">FAQ</span>
         </div>
 
-        <div className="space-y-10">
-          <div>
-            <h3 className="text-2xl font-black tracking-tight text-white">ゲーム</h3>
-            <div className="h-1 w-10 bg-red-500 rounded-full mt-3"></div>
-          </div>
-          <div className="space-y-3">
-            {GAME_FAQ.map((item, index) => (
-              <div key={index} className="bg-slate-900/40 backdrop-blur-md border border-white/5 rounded-2xl overflow-hidden transition-all hover:border-white/10">
+        <div className="p-4 md:p-10 space-y-6 relative min-h-[400px] flex flex-col">
+          <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%),linear-gradient(90deg,rgba(255,0,0,0.03),rgba(0,255,0,0.01),rgba(0,0,255,0.03))] bg-[length:100%_4px,3px_100%] z-10"></div>
+
+          {/* Question List */}
+          <div className="relative z-20">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 md:gap-x-12 gap-y-2 md:gap-y-1">
+              {FAQ_DATA.map((item) => (
                 <button
-                  onClick={() => setOpenGameIndex(openGameIndex === index ? null : index)}
-                  className="w-full px-6 py-5 flex items-center justify-between text-left cursor-pointer"
+                  key={item.id}
+                  onClick={() => handleFaqClick(item)}
+                  className="flex items-start text-left cursor-pointer transition-all group py-1"
                 >
-                  <span className="text-sm font-bold text-gray-200">{item.question}</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 text-gray-500 transition-transform duration-300 ${openGameIndex === index ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
+                  <div className="shrink-0 w-4 flex items-center justify-center h-5 md:h-6 mr-3 md:mr-4">
+                    <span className="font-black text-sm text-gray-700 group-hover:text-red-500 transition-colors">{'>'}</span>
+                  </div>
+                  <div className="text-xs md:text-base font-bold text-gray-500 group-hover:text-red-500 transition-colors leading-relaxed md:leading-6">
+                    <span className={getTagClass(item.category, true)}>{item.category}</span>
+                    {item.question}
+                  </div>
                 </button>
-                <div className={`px-6 transition-all duration-300 ease-in-out ${openGameIndex === index ? 'max-h-48 pb-6 opacity-100' : 'max-h-0 opacity-0'} overflow-hidden`}>
-                  <p className="text-sm text-gray-400 leading-relaxed whitespace-pre-wrap">{item.answer}</p>
+              ))}
+            </div>
+          </div>
+
+          {/* Output Buffer */}
+          <div className="relative z-20 flex-1 flex flex-col pt-4 overflow-hidden">
+            <div className="h-px bg-white/5 w-full mb-6"></div>
+            
+            <div 
+              ref={scrollRef}
+              className="flex-1 overflow-y-auto space-y-6 pr-2 no-scrollbar scroll-smooth"
+            >
+              {faqLogs.length > 0 ? (
+                faqLogs.map((log, index) => {
+                  const isLatest = index === faqLogs.length - 1;
+                  return (
+                    <div 
+                      key={`${log.id}-${log.timestamp}`} 
+                      className={`space-y-1 transition-opacity duration-500 ${isLatest ? 'opacity-100' : 'opacity-30 hidden md:block'}`}
+                    >
+                      {/* Question Log */}
+                      <div className="flex items-start">
+                        <div className="shrink-0 w-4 flex items-center justify-center h-5 md:h-6 mr-3 md:mr-4">
+                          <span className="text-gray-600 font-black text-sm">{'>'}</span>
+                        </div>
+                        <div className="text-xs md:text-base font-bold text-gray-400 leading-relaxed md:leading-6">
+                          <span className="text-[10px] md:text-[11px] font-black text-gray-500 uppercase tracking-widest mr-2">Q:</span>
+                          <span className={getTagClass(log.category)}>{log.category}</span>
+                          {log.question}
+                        </div>
+                      </div>
+                      
+                      {/* Answer Log */}
+                      <div className="flex items-start">
+                        <div className="shrink-0 w-4 flex items-center justify-center h-5 md:h-6 mr-3 md:mr-4">
+                          <span className="text-gray-600 font-black text-sm">#</span>
+                        </div>
+                        <p className={`text-xs md:text-base font-bold leading-relaxed md:leading-6 whitespace-pre-wrap max-w-2xl ${isLatest ? 'text-gray-300' : 'text-gray-500'}`}>
+                          {log.answer}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="flex items-center">
+                  <div className="shrink-0 w-4 flex items-center justify-center h-5 md:h-6 mr-3 md:mr-4">
+                    <span className="text-gray-700 font-black text-sm animate-pulse">_</span>
+                  </div>
+                  <span className="text-[10px] md:text-[11px] font-black uppercase tracking-[0.2em] text-gray-700">AWAITING_QUERY...</span>
                 </div>
-              </div>
-            ))}
+              )}
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="bg-slate-900/40 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-8 md:p-16 shadow-2xl animate-fade-in-up">
-        {state?.success ? (
-          <div className="text-center py-12">
-            <div className="w-20 h-20 bg-emerald-500/20 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-8 animate-bounce">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <h2 className="text-2xl font-black text-white mb-4">メッセージを送信しました</h2>
-            <p className="text-gray-400">お問い合わせありがとうございます。内容を確認次第、ご連絡させていただきます。</p>
-            <button
-              onClick={() => window.location.reload()} 
-              className="mt-10 text-sm font-black text-gray-500 hover:text-red-500 transition-colors tracking-widest uppercase cursor-pointer"
-            >
-              新しいメッセージを送る
-            </button>
-          </div>
-        ) : (
-          <form action={formAction} className="space-y-8">
-            {state?.error && <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-sm font-bold text-center">{state.error}</div>}
+      {/* Form Section */}
+      <div className="relative bg-slate-950/70 backdrop-blur-lg border border-white/10 rounded-xl overflow-hidden shadow-2xl flex flex-col">
+        <div className="bg-white/5 border-b border-white/10 px-4 py-2 flex items-center justify-end relative z-30">
+          <span className="text-[10px] font-bold text-gray-500 tracking-widest uppercase">CONTACT</span>
+        </div>
 
-            <div className="hidden" aria-hidden="true">
-              <input type="text" name="tel" tabIndex={-1} autoComplete="off" />
-            </div>
+        <div className="p-4 md:p-10 relative">
+          <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%),linear-gradient(90deg,rgba(255,0,0,0.03),rgba(0,255,0,0.01),rgba(0,0,255,0.03))] bg-[length:100%_4px,3px_100%] z-10"></div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-2">
-                <label htmlFor="name" className="block text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] ml-1">お名前</label>
-                <input type="text" id="name" name="name" required className={`w-full bg-white/5 border rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-red-500 transition-colors placeholder:text-slate-500 ${state?.errors?.name ? 'border-red-500/50' : 'border-white/10'}`} placeholder="cosmotmt" />
-                {state?.errors?.name && <p className="text-red-500 text-[10px] font-bold ml-1">{state.errors.name[0]}</p>}
-              </div>
-              <div className="space-y-2">
-                <label htmlFor="email" className="block text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] ml-1">メールアドレス</label>
-                <input type="email" id="email" name="email" required className={`w-full bg-white/5 border rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-red-500 transition-colors placeholder:text-slate-500 ${state?.errors?.email ? 'border-red-500/50' : 'border-white/10'}`} placeholder="example@cosmotmt.jp" />
-                {state?.errors?.email && <p className="text-red-500 text-[10px] font-bold ml-1">{state.errors.email[0]}</p>}
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label htmlFor="message" className="block text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] ml-1">お問い合わせ内容</label>
-              <textarea id="message" name="message" required rows={8} className={`w-full bg-white/5 border rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-red-500 transition-colors placeholder:text-slate-500 resize-none ${state?.errors?.message ? 'border-red-500/50' : 'border-white/10'}`} placeholder="ご自由にご記入ください"></textarea>
-              {state?.errors?.message && <p className="text-red-500 text-[10px] font-bold ml-1">{state.errors.message[0]}</p>}
-            </div>
-
-            <div className="pt-4 flex justify-center">
-              <button type="submit" disabled={isPending} className="w-full md:w-auto md:px-24 py-5 bg-white text-slate-950 rounded-full text-sm font-black tracking-widest hover:bg-red-500 hover:text-white transition-all shadow-2xl shadow-white/10 hover:shadow-red-500/40 hover:-translate-y-1 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 cursor-pointer">
-                {isPending ? <><div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></div>送信中...</> : "メッセージを送信する"}
+          {state?.success ? (
+            <div className="relative z-20 text-center py-12">
+              <div className="text-emerald-500 font-black text-2xl mb-6">[ SUCCESS ]</div>
+              <h2 className="text-lg font-bold text-white mb-4">メッセージを送信しました</h2>
+              <p className="text-gray-500 text-xs">内容を確認次第、ご連絡させていただきます。</p>
+              <button
+                onClick={() => window.location.reload()} 
+                className="mt-12 text-[10px] font-black text-gray-500 hover:text-red-500 transition-colors tracking-[0.3em] uppercase cursor-pointer"
+              >
+                {'>'} SEND_NEW_MESSAGE
               </button>
             </div>
-          </form>
-        )}
+          ) : (
+            <form action={formAction} className="relative z-20 space-y-6 md:space-y-8">
+              {state?.error && <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-bold text-center uppercase">[ ERROR: {state.error} ]</div>}
+
+              <div className="hidden" aria-hidden="true">
+                <input type="text" name="tel" tabIndex={-1} autoComplete="off" />
+              </div>
+
+              <div className="space-y-6 md:space-y-8">
+                <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-0">
+                  <div className="flex items-center shrink-0 w-full md:w-36">
+                    <div className="w-4 flex items-center justify-center mr-3 md:mr-4">
+                      <span className="text-gray-600 font-black text-sm">{'>'}</span>
+                    </div>
+                    <label htmlFor="name" className="text-[10px] md:text-[11px] font-black text-gray-500 uppercase tracking-widest">お名前</label>
+                  </div>
+                  <div className="flex-1">
+                    <input 
+                      type="text" id="name" name="name" required 
+                      className={`w-full bg-[#020617] border px-4 py-2 text-xs md:text-base text-white focus:outline-none focus:border-red-500 transition-colors placeholder:text-gray-600 rounded-none ${state?.errors?.name ? 'border-red-500/50' : 'border-white/10'}`} 
+                      placeholder="cosmotmt" 
+                    />
+                    {state?.errors?.name && <p className="text-red-500 text-[9px] font-bold mt-1">! {state.errors.name[0]}</p>}
+                  </div>
+                </div>
+
+                <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-0">
+                  <div className="flex items-center shrink-0 w-full md:w-36">
+                    <div className="w-4 flex items-center justify-center mr-3 md:mr-4">
+                      <span className="text-gray-600 font-black text-sm">{'>'}</span>
+                    </div>
+                    <label htmlFor="email" className="text-[10px] md:text-[11px] font-black text-gray-500 uppercase tracking-widest">メールアドレス</label>
+                  </div>
+                  <div className="flex-1">
+                    <input 
+                      type="email" id="email" name="email" required 
+                      className={`w-full bg-[#020617] border px-4 py-2 text-xs md:text-base text-white focus:outline-none focus:border-red-500 transition-colors placeholder:text-gray-600 rounded-none ${state?.errors?.email ? 'border-red-500/50' : 'border-white/10'}`} 
+                      placeholder="example@cosmotmt.jp" 
+                    />
+                    {state?.errors?.email && <p className="text-red-500 text-[9px] font-bold mt-1">! {state.errors.email[0]}</p>}
+                  </div>
+                </div>
+
+                <div className="flex flex-col md:flex-row md:items-start gap-2 md:gap-0">
+                  <div className="flex items-center shrink-0 w-full md:w-36 pt-1">
+                    <div className="w-4 flex items-center justify-center mr-3 md:mr-4">
+                      <span className="text-gray-600 font-black text-sm">{'>'}</span>
+                    </div>
+                    <label htmlFor="message" className="text-[10px] md:text-[11px] font-black text-gray-500 uppercase tracking-widest">内容</label>
+                  </div>
+                  <div className="flex-1">
+                    <textarea 
+                      id="message" name="message" required rows={6} 
+                      className={`w-full bg-[#020617] border px-4 py-3 text-xs md:text-base text-white focus:outline-none focus:border-red-500 transition-colors placeholder:text-gray-600 resize-none rounded-none ${state?.errors?.message ? 'border-red-500/50' : 'border-white/10'}`}
+                      placeholder="ご自由にご記入ください"
+                    ></textarea>
+                    {state?.errors?.message && <p className="text-red-500 text-[9px] font-bold mt-1">! {state.errors.message[0]}</p>}
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-6 flex justify-center">
+                <div className="relative inline-block group w-full md:w-auto">
+                  <div className="absolute inset-0 bg-red-600 opacity-0 group-hover:opacity-100 translate-x-0 translate-y-0 group-hover:translate-x-1 group-hover:translate-y-1 transition-all duration-200"></div>
+                  <button 
+                    type="submit" 
+                    disabled={isPending} 
+                    className="relative flex items-center justify-center w-full md:px-24 py-4 bg-white text-slate-950 text-xs font-black tracking-[0.2em] uppercase transition-all duration-200 hover:bg-red-500 hover:text-white overflow-hidden border border-transparent hover:-translate-x-0.5 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity" style={stripeStyle}></div>
+                    <span className="relative z-10">{isPending ? "送信中..." : "送信"}</span>
+                  </button>
+                </div>
+              </div>
+            </form>
+          )}
+        </div>
       </div>
     </div>
   );

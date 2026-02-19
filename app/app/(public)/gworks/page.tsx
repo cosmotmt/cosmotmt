@@ -37,11 +37,13 @@ export default async function GWorksPage() {
   });
 
   return (
-    <div className="min-h-screen pt-24 md:pt-32 pb-48 md:pb-24 px-6">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen pt-24 md:pt-32 pb-48 md:pb-24 px-6 font-mono">
+      <div className="max-w-4xl mx-auto">
         <div className="mb-12 md:mb-16">
-          <h1 className="text-2xl md:text-4xl font-black tracking-tighter mb-4 text-white">ゲーム作品</h1>
-          <div className="h-1 w-20 bg-red-500 rounded-full"></div>
+          <div className="flex items-center gap-4">
+            <h1 className="text-2xl md:text-3xl font-black tracking-tight text-white uppercase whitespace-nowrap">ゲーム作品</h1>
+            <div className="flex-1 h-px bg-white/10"></div>
+          </div>
         </div>
         <GWorksList initialWorks={works} />
       </div>

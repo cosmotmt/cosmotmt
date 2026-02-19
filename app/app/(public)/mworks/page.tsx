@@ -35,11 +35,13 @@ export default async function MWorksPage() {
   });
 
   return (
-    <div className="min-h-screen pt-24 md:pt-32 pb-60 md:pb-40 px-6">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen pt-24 md:pt-32 pb-60 md:pb-40 px-6 font-mono">
+      <div className="max-w-4xl mx-auto">
         <div className="mb-12 md:mb-16">
-          <h1 className="text-2xl md:text-4xl font-black tracking-tighter mb-4 text-white">音楽作品</h1>
-          <div className="h-1 w-20 bg-red-500 rounded-full"></div>
+          <div className="flex items-center gap-4">
+            <h1 className="text-2xl md:text-3xl font-black tracking-tight text-white uppercase whitespace-nowrap">音楽作品</h1>
+            <div className="flex-1 h-px bg-white/10"></div>
+          </div>
         </div>
         <MWorksList initialWorks={works} />
       </div>

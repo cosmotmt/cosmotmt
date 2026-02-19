@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 
 interface GameWorkModalProps {
@@ -23,10 +23,48 @@ interface GameWorkModalProps {
 
 export default function GameWorkModal({ isOpen, onClose, work }: GameWorkModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [showScrollHint, setShowScrollHint] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
+
+  // Handle close with animation
+  const handleClose = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      onClose();
+      setIsClosing(false);
+    }, 300);
+  };
+
+  // Check if content is scrollable
+  const checkScrollable = () => {
+    if (scrollRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
+      const isScrollable = scrollHeight > clientHeight;
+      const isAtBottom = scrollTop + clientHeight >= scrollHeight - 20;
+      setShowScrollHint(isScrollable && !isAtBottom);
+    }
+  };
+
+  // Check scrollability when modal opens or content changes
+  useEffect(() => {
+    if (isOpen && work && !isClosing) {
+      const timer = setTimeout(checkScrollable, 100);
+      return () => clearTimeout(timer);
+    } else if (!isOpen) {
+      setShowScrollHint(false);
+    }
+  }, [isOpen, work, isClosing]);
+
+  // Re-check on window resize
+  useEffect(() => {
+    window.addEventListener('resize', checkScrollable);
+    return () => window.removeEventListener('resize', checkScrollable);
+  }, []);
 
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
+      if (event.key === "Escape") handleClose();
     };
 
     if (isOpen) {
@@ -41,115 +79,135 @@ export default function GameWorkModal({ isOpen, onClose, work }: GameWorkModalPr
       document.removeEventListener("keydown", handleEscape);
       document.body.style.overflow = "";
     };
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   if (!isOpen || !work) return null;
 
-  const tagClass = "px-3 py-1 bg-white/5 text-white text-[11px] font-bold rounded-lg border border-white/10 tracking-wider";
+  const stripeStyle = {
+    backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.15) 2px, rgba(255,255,255,0.15) 4px)'
+  };
+
+  const TerminalLine = ({ label, content, isLong = false }: { label: string, content: React.ReactNode, isLong?: boolean }) => (
+    <div className="flex items-start gap-3 md:gap-4 min-h-[1.5rem]">
+      <div className="shrink-0 w-4 flex items-center justify-center h-5 md:h-6">
+        <span className="font-black text-sm text-gray-600">{'>'}</span>
+      </div>
+      <div className={`flex flex-row items-start gap-2 md:gap-0 flex-1 min-w-0`}>
+        <div className="flex items-center shrink-0 h-5 md:h-6">
+          <div className="w-14 md:w-20 flex items-center">
+            <span className="text-[10px] md:text-xs font-bold text-gray-500 uppercase">
+              {label}
+            </span>
+          </div>
+        </div>
+        <div className={`text-xs md:text-base text-gray-300 flex-1 py-0.5 md:py-0 leading-relaxed`}>
+          {content}
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md"
-      onClick={onClose}
+      className={`fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8 backdrop-blur-sm antialiased transition-all duration-300 ${isClosing ? 'opacity-0 bg-transparent' : 'opacity-100 bg-white/[0.02]'}`}
+      onClick={handleClose}
     >
-      <div
-        ref={modalRef}
-        className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-slate-900 rounded-[2.5rem] shadow-2xl border border-white/10 animate-fade-in-up"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <style jsx global>{`
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
+
+      <div className={`relative w-full max-w-4xl transition-all duration-300 ${isClosing ? 'scale-95 opacity-0' : 'scale-100 opacity-100'}`}>
+        {/* Close Button */}
         <button
-          onClick={onClose}
-          className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center bg-slate-800/50 hover:bg-red-500 text-white rounded-full transition-all z-20 backdrop-blur-md cursor-pointer"
+          onClick={handleClose}
+          className="absolute -top-3 -right-3 z-[60] w-8 h-8 flex items-center justify-center bg-slate-900 border border-white/10 rounded-full text-gray-400 hover:text-white hover:bg-red-500 hover:border-red-500 transition-all shadow-2xl cursor-pointer group"
           aria-label="Close"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
 
-        <div className="flex flex-col lg:flex-row">
-          <div className="lg:w-1/2">
-            <div className="aspect-video lg:aspect-square bg-slate-800 overflow-hidden">
-              {work.thumbnail_url ? (
-                <img src={work.thumbnail_url} alt={work.title} className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-slate-600 font-black tracking-widest uppercase text-xs">No Image</div>
-              )}
+        {/* Modal Shell */}
+        <div
+          ref={modalRef}
+          className="relative w-full max-h-[85vh] overflow-hidden bg-slate-950/70 backdrop-blur-lg border border-white/10 rounded-xl shadow-2xl font-mono flex flex-col animate-fade-in"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className="bg-white/5 border-b border-white/10 px-4 md:px-6 py-2 h-10 flex items-center justify-between relative z-30">
+            <div className="flex items-center gap-4 md:gap-6 text-[9px] md:text-[10px] font-bold text-gray-500 tracking-widest uppercase truncate">
+              <span>{work.development_type === 'solo' ? '個人開発' : work.development_type === 'team' ? 'チーム開発' : '業務実績'}</span>
+              <span>{work.duration || "---"}</span>
             </div>
-            
-            {work.external_url && (
-              <div className="p-8 lg:p-10">
-                <Link
-                  href={work.external_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center w-full py-4 bg-white text-slate-950 rounded-full text-sm font-black tracking-widest hover:bg-red-500 hover:text-white transition-all shadow-xl shadow-white/5 hover:shadow-red-500/20"
-                >
-                  ストアページを見る
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
-                </Link>
-              </div>
-            )}
           </div>
 
-          <div className="lg:w-1/2 p-8 lg:p-12 lg:border-l border-white/5">
-            <div className="mb-10">
-              <div className="flex items-center gap-1.5 mb-6">
-                <span className="px-3 py-1 bg-slate-800 text-slate-400 text-[10px] font-black uppercase tracking-widest rounded-full border border-white/5">
-                  {work.development_type === 'solo' ? '個人開発' : work.development_type === 'team' ? 'チーム開発' : '業務実績'}
-                </span>
-                {work.duration && (
-                  <span className="px-3 py-1 bg-slate-800 text-slate-400 text-[10px] font-black uppercase tracking-widest rounded-full border border-white/5">
-                    {work.duration}
-                  </span>
+          {/* Terminal Content */}
+          <div 
+            ref={scrollRef}
+            onScroll={checkScrollable}
+            className="flex-1 overflow-y-auto relative z-10 p-5 md:p-10 space-y-6 md:space-y-8 no-scrollbar"
+          >
+            {/* Title & Tags + Link Row */}
+            <div className="space-y-4">
+              <h2 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight">
+                {work.title}
+              </h2>
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex flex-wrap gap-2">
+                  {[...work.platforms, ...work.techs].map(item => (
+                    <span key={item} className="px-2 py-0.5 border border-white/10 text-gray-400 bg-white/5 text-[10px] font-bold tracking-wider uppercase">
+                      {item}
+                    </span>
+                  ))}
+                </div>
+                
+                {work.external_url && (
+                  <div className="relative inline-block group shrink-0">
+                    <div className="absolute inset-0 bg-red-600 opacity-0 group-hover:opacity-100 translate-x-0 translate-y-0 group-hover:translate-x-1 group-hover:translate-y-1 transition-all duration-200"></div>
+                    <Link
+                      href={work.external_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="relative inline-flex items-center justify-center px-3 md:px-4 py-1 bg-white text-slate-950 transition-all duration-200 hover:bg-red-500 hover:text-white overflow-hidden border border-transparent hover:-translate-x-0.5 hover:-translate-y-0.5"
+                    >
+                      <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity" style={stripeStyle}></div>
+                      <span className="relative z-10 text-[9px] font-black tracking-widest uppercase whitespace-nowrap">外部リンク</span>
+                    </Link>
+                  </div>
                 )}
               </div>
-              <h2 className="text-2xl md:text-3xl font-black tracking-tighter text-white mb-6">{work.title}</h2>
-              <p className="text-gray-400 leading-relaxed text-base">{work.description}</p>
             </div>
 
-            <div className="space-y-10">
-              {work.features && (
-                <div>
-                  <h3 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mb-4">主な実装機能</h3>
-                  <p className="text-gray-300 leading-relaxed text-sm">{work.features}</p>
-                </div>
+            {/* Image Row */}
+            <div className="relative aspect-video bg-slate-950 border border-white/10 overflow-hidden w-full">
+              {work.thumbnail_url ? (
+                <img src={work.thumbnail_url} alt={work.title} className="w-full h-full object-cover opacity-90" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-slate-700 font-black tracking-widest uppercase text-xs">No Image</div>
               )}
+            </div>
 
-              {work.platforms.length > 0 && (
-                <div>
-                  <h3 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mb-4">プラットフォーム</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {work.platforms.map(p => (
-                      <span key={p} className={tagClass}>{p}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {work.techs.length > 0 && (
-                <div>
-                  <h3 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mb-4">技術スタック</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {work.techs.map(tech => (
-                      <span key={tech} className={tagClass}>{tech}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
+            <div className="h-px bg-white/5 my-4 w-full" />
+            
+            {/* Detailed Logs */}
+            <div className="space-y-4 md:space-y-5">
+              <TerminalLine label="概要" content={work.description} isLong={true} />
               {work.roles.length > 0 && (
-                <div>
-                  <h3 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mb-4">担当役割</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {work.roles.map(role => (
-                      <span key={role} className={tagClass}>{role}</span>
-                    ))}
-                  </div>
-                </div>
+                <TerminalLine label="担当" content={work.roles.join(", ")} />
               )}
+              {work.features && (
+                <TerminalLine label="機能" content={work.features} isLong={true} />
+              )}
+            </div>
+          </div>
+
+          {/* Scroll Indicator */}
+          <div className={`absolute bottom-4 right-6 z-30 pointer-events-none transition-opacity duration-500 ${showScrollHint ? 'opacity-100' : 'opacity-0'}`}>
+            <div className="flex items-center gap-2 text-[9px] font-black text-gray-500 tracking-[0.2em] uppercase animate-pulse">
+              <span className="text-white">Scroll</span>
+              <span className="text-gray-500">▼</span>
             </div>
           </div>
         </div>
