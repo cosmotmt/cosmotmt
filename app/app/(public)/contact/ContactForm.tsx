@@ -39,6 +39,12 @@ const FAQ_DATA = [
     category: "ゲーム",
     question: "ゲーム開発の依頼は受け付けていますか？",
     answer: "はい、受け付けております。まずはお気軽にご相談くださいませ。"
+  },
+  {
+    id: "other_dev",
+    category: "ゲーム",
+    question: "ゲーム以外の開発依頼は受け付けていますか？",
+    answer: "受付できる可能性がございます。まずはお気軽にご相談くださいませ。"
   }
 ];
 
@@ -135,7 +141,7 @@ export default function ContactForm() {
                         <div className="shrink-0 w-4 flex items-center justify-center h-5 md:h-6 mr-3 md:mr-4">
                           <span className="text-gray-600 font-black text-sm">{'>'}</span>
                         </div>
-                        <div className="text-xs md:text-base font-bold text-gray-400 leading-5 md:leading-6">
+                        <div className="text-xs md:text-base font-bold text-gray-400 leading-relaxed md:leading-6">
                           <span className="text-[10px] md:text-[11px] font-black text-gray-500 uppercase tracking-widest mr-2 inline-block align-middle" style={{ marginTop: '-2px' }}>Q:</span>
                           <span className={getTagClass(log.category)}>{log.category}</span>
                           {log.question}
@@ -147,7 +153,7 @@ export default function ContactForm() {
                         <div className="shrink-0 w-4 flex items-center justify-center h-5 md:h-6 mr-3 md:mr-4">
                           <span className="text-gray-600 font-black text-sm">#</span>
                         </div>
-                        <p className={`text-xs md:text-base leading-5 md:leading-6 whitespace-pre-wrap max-w-2xl ${isLatest ? 'text-gray-300' : 'text-gray-500'}`}>
+                        <p className={`text-xs md:text-base leading-relaxed md:leading-6 whitespace-pre-wrap max-w-2xl ${isLatest ? 'text-gray-300' : 'text-gray-500'}`}>
                           {log.answer}
                         </p>
                       </div>
@@ -185,7 +191,7 @@ export default function ContactForm() {
                 onClick={() => window.location.reload()} 
                 className="mt-12 text-[10px] font-black text-gray-500 hover:text-red-500 transition-colors tracking-[0.3em] uppercase cursor-pointer"
               >
-                {'>'} 新しいメッセージを送信
+                {'>'} SEND_NEW_MESSAGE
               </button>
             </div>
           ) : (
