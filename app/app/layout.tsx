@@ -1,6 +1,6 @@
 export const runtime = "edge";
 
-import type { Metadata } from "next";
+import { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -15,6 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://cosmotmt.jp"),
   title: {
     default: "CosmoTmt Planet",
     template: "%s | CosmoTmt Planet"
