@@ -34,17 +34,17 @@ export default async function Home() {
   ].sort((a, b) => b.date.localeCompare(a.date));
 
   const stripeStyle = {
-    backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(0,0,0,0.05) 2px, rgba(0,0,0,0.05) 4px)'
+    backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.15) 2px, rgba(255,255,255,0.15) 4px)'
   };
 
   const SystemButton = ({ href, label }: { href: string, label: string }) => (
     <div className="relative inline-block group">
-      {/* Offset Layer (The "Rich" Shadow) */}
+      {/* Offset Layer */}
       <div className="absolute inset-0 bg-red-600 opacity-0 group-hover:opacity-100 translate-x-0 translate-y-0 group-hover:translate-x-1 group-hover:translate-y-1 transition-all duration-200"></div>
       
       <Link href={href} className="relative inline-flex items-center justify-center px-8 py-3 bg-white text-slate-950 font-mono transition-all duration-200 hover:bg-red-500 hover:text-white overflow-hidden border border-transparent hover:-translate-x-0.5 hover:-translate-y-0.5">
-        {/* Stripe Texture - Only visible on hover */}
-        <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-20 transition-opacity" style={stripeStyle}></div>
+        {/* Stripe Texture - Strictly hidden by default */}
+        <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity" style={stripeStyle}></div>
         
         <span className="relative z-10 text-[10px] md:text-xs font-black tracking-[0.2em] uppercase">
           {label}
