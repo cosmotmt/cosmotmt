@@ -24,7 +24,7 @@ interface GameWorkModalProps {
 export default function GameWorkModal({ isOpen, onClose, work }: GameWorkModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [showScrollHint, setShowScrollHint] = useState(true);
+  const [showScrollHint, setShowScrollHint] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
 
   // Handle close with animation
@@ -36,17 +36,31 @@ export default function GameWorkModal({ isOpen, onClose, work }: GameWorkModalPr
     }, 300);
   };
 
-  // Scroll detection for hint
-  const handleScroll = () => {
+  // Check if content is scrollable
+  const checkScrollable = () => {
     if (scrollRef.current) {
       const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
-      if (scrollTop + clientHeight >= scrollHeight - 40) {
-        setShowScrollHint(false);
-      } else {
-        setShowScrollHint(true);
-      }
+      const isScrollable = scrollHeight > clientHeight;
+      const isAtBottom = scrollTop + clientHeight >= scrollHeight - 20;
+      setShowScrollHint(isScrollable && !isAtBottom);
     }
   };
+
+  // Check scrollability when modal opens or content changes
+  useEffect(() => {
+    if (isOpen && work && !isClosing) {
+      const timer = setTimeout(checkScrollable, 100);
+      return () => clearTimeout(timer);
+    } else if (!isOpen) {
+      setShowScrollHint(false);
+    }
+  }, [isOpen, work, isClosing]);
+
+  // Re-check on window resize
+  useEffect(() => {
+    window.addEventListener('resize', checkScrollable);
+    return () => window.removeEventListener('resize', checkScrollable);
+  }, []);
 
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
@@ -78,9 +92,9 @@ export default function GameWorkModal({ isOpen, onClose, work }: GameWorkModalPr
       <div className="shrink-0 w-4 flex items-center justify-center h-5 md:h-6">
         <span className="font-black text-sm text-gray-600">{'>'}</span>
       </div>
-      <div className={`flex flex-col md:flex-row md:items-start gap-1 md:gap-0 flex-1 min-w-0`}>
+      <div className={`flex flex-row items-start gap-2 md:gap-0 flex-1 min-w-0`}>
         <div className="flex items-center shrink-0 h-5 md:h-6">
-          <div className="w-16 md:w-20 flex items-center">
+          <div className="w-14 md:w-20 flex items-center">
             <span className="text-[10px] md:text-xs font-bold text-gray-500 uppercase">
               {label}
             </span>
@@ -122,8 +136,8 @@ export default function GameWorkModal({ isOpen, onClose, work }: GameWorkModalPr
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="bg-white/5 border-b border-white/10 px-4 py-2 h-10 flex items-center justify-between relative z-30">
-            <div className="flex items-center gap-6 text-[10px] font-bold text-gray-500 tracking-widest uppercase">
+          <div className="bg-white/5 border-b border-white/10 px-4 md:px-6 py-2 h-10 flex items-center justify-between relative z-30">
+            <div className="flex items-center gap-4 md:gap-6 text-[9px] md:text-[10px] font-bold text-gray-500 tracking-widest uppercase truncate">
               <span>{work.development_type === 'solo' ? '個人開発' : work.development_type === 'team' ? 'チーム開発' : '業務実績'}</span>
               <span>{work.duration || "---"}</span>
             </div>
@@ -132,15 +146,15 @@ export default function GameWorkModal({ isOpen, onClose, work }: GameWorkModalPr
           {/* Terminal Content */}
           <div 
             ref={scrollRef}
-            onScroll={handleScroll}
-            className="flex-1 overflow-y-auto relative z-10 p-6 md:p-10 space-y-6 no-scrollbar"
+            onScroll={checkScrollable}
+            className="flex-1 overflow-y-auto relative z-10 p-5 md:p-10 space-y-6 md:space-y-8 no-scrollbar"
           >
             {/* Title & Tags + Link Row */}
             <div className="space-y-4">
               <h2 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight">
                 {work.title}
               </h2>
-              <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+              <div className="flex items-center justify-between gap-4">
                 <div className="flex flex-wrap gap-2">
                   {[...work.platforms, ...work.techs].map(item => (
                     <span key={item} className="px-2 py-0.5 border border-white/10 text-gray-400 bg-white/5 text-[10px] font-bold tracking-wider uppercase">
@@ -156,10 +170,10 @@ export default function GameWorkModal({ isOpen, onClose, work }: GameWorkModalPr
                       href={work.external_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="relative inline-flex items-center justify-center px-6 py-2 bg-white text-slate-950 transition-all duration-200 hover:bg-red-500 hover:text-white overflow-hidden border border-transparent hover:-translate-x-0.5 hover:-translate-y-0.5"
+                      className="relative inline-flex items-center justify-center px-3 md:px-4 py-1 bg-white text-slate-950 transition-all duration-200 hover:bg-red-500 hover:text-white overflow-hidden border border-transparent hover:-translate-x-0.5 hover:-translate-y-0.5"
                     >
                       <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity" style={stripeStyle}></div>
-                      <span className="relative z-10 text-[10px] font-black tracking-widest uppercase">外部リンク</span>
+                      <span className="relative z-10 text-[9px] font-black tracking-widest uppercase whitespace-nowrap">外部リンク</span>
                     </Link>
                   </div>
                 )}
@@ -177,21 +191,21 @@ export default function GameWorkModal({ isOpen, onClose, work }: GameWorkModalPr
 
             <div className="h-px bg-white/5 my-4 w-full" />
             
-            {/* Content Lines (No sequential loading) */}
-            <TerminalLine label="概要" content={work.description} isLong={true} />
-            
-            {work.roles.length > 0 && (
-              <TerminalLine label="担当" content={work.roles.join(", ")} />
-            )}
-
-            {work.features && (
-              <TerminalLine label="機能" content={work.features} isLong={true} />
-            )}
+            {/* Detailed Logs */}
+            <div className="space-y-4 md:space-y-5">
+              <TerminalLine label="概要" content={work.description} isLong={true} />
+              {work.roles.length > 0 && (
+                <TerminalLine label="担当" content={work.roles.join(", ")} />
+              )}
+              {work.features && (
+                <TerminalLine label="機能" content={work.features} isLong={true} />
+              )}
+            </div>
           </div>
 
           {/* Scroll Indicator */}
           <div className={`absolute bottom-4 right-6 z-30 pointer-events-none transition-opacity duration-500 ${showScrollHint ? 'opacity-100' : 'opacity-0'}`}>
-            <div className="flex items-center gap-2 text-[9px] font-black tracking-[0.2em] uppercase animate-pulse">
+            <div className="flex items-center gap-2 text-[9px] font-black text-gray-500 tracking-[0.2em] uppercase animate-pulse">
               <span className="text-white">Scroll</span>
               <span className="text-gray-500">▼</span>
             </div>
