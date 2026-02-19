@@ -84,7 +84,7 @@ export default function ContactForm() {
         </div>
 
         <div className="p-4 md:p-10 space-y-6 relative min-h-[400px] flex flex-col">
-          <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.05)_50%)] bg-[length:100%_4px] z-10"></div>
+          <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%),linear-gradient(90deg,rgba(255,0,0,0.03),rgba(0,255,0,0.01),rgba(0,0,255,0.03))] bg-[length:100%_4px,3px_100%] z-10"></div>
 
           {/* Question List */}
           <div className="relative z-20">
@@ -147,7 +147,7 @@ export default function ContactForm() {
               ) : (
                 <div className="flex items-center">
                   <div className="shrink-0 w-4 flex items-center justify-center h-5 md:h-6 mr-3 md:mr-4">
-                    <span className="text-gray-700 font-black text-sm">{'>'}</span>
+                    <span className="text-gray-700 font-black text-sm animate-pulse">{'>'}</span>
                   </div>
                   <div className="w-2 h-4 bg-gray-700 animate-pulse"></div>
                 </div>
@@ -157,7 +157,7 @@ export default function ContactForm() {
         </div>
       </div>
 
-      {/* Form Section */}
+      {/* Form Section: Terminal Window Style */}
       <div className="relative bg-slate-950/70 backdrop-blur-lg border border-white/10 rounded-xl overflow-hidden shadow-2xl flex flex-col">
         <div className="bg-white/5 border-b border-white/10 px-4 py-2 flex items-center justify-end relative z-30">
           <span className="text-[10px] font-bold text-gray-500 tracking-widest uppercase">CONTACT</span>
@@ -175,7 +175,7 @@ export default function ContactForm() {
                 onClick={() => window.location.reload()} 
                 className="mt-12 text-[10px] font-black text-gray-500 hover:text-red-500 transition-colors tracking-[0.3em] uppercase cursor-pointer"
               >
-                {'>'} SEND_NEW_MESSAGE
+                {'>'} 新しいメッセージを送信
               </button>
             </div>
           ) : (
