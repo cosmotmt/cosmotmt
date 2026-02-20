@@ -31,9 +31,12 @@ export async function GET(
     headers.set("Access-Control-Expose-Headers", "Content-Range, Content-Length, Accept-Ranges");
     headers.set("Accept-Ranges", "bytes");
     headers.set("Cache-Control", "public, max-age=31536000, immutable");
-    headers.set("Vary", "Origin, Range"); // OriginとRangeによってキャッシュを分ける
+    headers.set("Vary", "Origin"); // Rangeを削除
     headers.set("ETag", object.httpEtag);
-    headers.set("Content-Type", object.httpMetadata?.contentType || "application/octet-stream");
+    headers.set("X-Content-Type-Options", "nosniff");
+
+    const contentType = object.httpMetadata?.contentType || "audio/mpeg";
+    headers.set("Content-Type", contentType);
 
     if (range && range.startsWith("bytes=")) {
       const parts = range.replace(/bytes=/, "").split("-");

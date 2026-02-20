@@ -13,6 +13,7 @@ interface Track {
 interface AudioContextType {
   currentTrack: Track | null;
   isPlaying: boolean;
+  isSeeking: boolean; // 追加
   duration: number;
   currentTime: number;
   volume: number;
@@ -32,6 +33,7 @@ const AudioContext = createContext<AudioContextType | undefined>(undefined);
 export function AudioProvider({ children }: { children: React.ReactNode }) {
   const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isSeekingState, setIsSeekingState] = useState(false); // 追加
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [volume, setVolumeState] = useState(0.7);
@@ -41,17 +43,22 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const audio = new Audio();
+    audio.crossOrigin = "anonymous"; // CORSを有効化
     audio.volume = volume;
+    audio.preload = "metadata"; // メタデータを事前に読み込む
     audioRef.current = audio;
     
     const handleEnded = () => setIsPlaying(false);
     const handleTimeUpdate = () => {
+      // シーク中（Ref）は currentTime ステートを更新しない
       if (!isSeekingRef.current) {
         setCurrentTime(audio.currentTime);
       }
     };
     const handleSeeked = () => {
+      // ブラウザ側のシークが完了したらフラグを下ろす
       isSeekingRef.current = false;
+      setIsSeekingState(false);
       setCurrentTime(audio.currentTime);
     };
     const updateDuration = () => {
@@ -87,6 +94,10 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     }
 
     audio.pause();
+    // 確実にリセット
+    isSeekingRef.current = false;
+    setIsSeekingState(false);
+    
     audio.src = track.audio_url;
     audio.load();
     
@@ -118,19 +129,25 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     }
     setCurrentTrack(null);
     setIsPlaying(false);
+    setIsSeekingState(false);
+    isSeekingRef.current = false;
     setDuration(0);
     setCurrentTime(0);
   };
 
   const seek = (time: number) => {
     if (!audioRef.current) return;
+    // シーク開始
     isSeekingRef.current = true;
+    setIsSeekingState(true);
+    
     audioRef.current.currentTime = time;
     setCurrentTime(time);
   };
 
   const setIsSeeking = (seeking: boolean) => {
     isSeekingRef.current = seeking;
+    setIsSeekingState(seeking);
   };
 
   const setVolume = (v: number) => {
@@ -147,7 +164,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AudioContext.Provider value={{ 
-      currentTrack, isPlaying, duration, currentTime, volume,
+      currentTrack, isPlaying, isSeeking: isSeekingState, duration, currentTime, volume,
       playTrack, pauseTrack, resumeTrack, togglePlay, stopTrack, seek, setIsSeeking, setVolume, formatTime 
     }}>
       {children}
