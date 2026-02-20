@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifySession } from "@/app/(admin)/api/auth";
 
 export const runtime = "edge";
 
@@ -114,6 +113,9 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ filename: string }> }
 ) {
+  // 動的インポートを使用してGET時のフットプリントを減らす
+  const { verifySession } = await import("@/app/(admin)/api/auth");
+  
   // セッションチェック
   if (!(await verifySession())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
