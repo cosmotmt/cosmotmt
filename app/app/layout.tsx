@@ -14,8 +14,11 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// ベースURLの設定
+const baseUrl = "https://cosmotmt.jp";
+
 export const metadata: Metadata = {
-  metadataBase: new URL("https://cosmotmt.jp"),
+  metadataBase: new URL(baseUrl),
   title: {
     default: "CosmoTmt Planet",
     template: "%s | CosmoTmt Planet"
@@ -26,13 +29,13 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "ja_JP",
-    url: "https://cosmotmt.jp",
+    url: baseUrl,
     siteName: "CosmoTmt Planet",
     title: "CosmoTmt Planet",
     description: "ゲームエンジニア兼音楽クリエイター「CosmoTmt」のポートフォリオサイト。",
     images: [
       {
-        url: "/og-image.webp",
+        url: "/og-image.png",
         width: 1200,
         height: 630,
         alt: "CosmoTmt Planet",
@@ -44,7 +47,7 @@ export const metadata: Metadata = {
     title: "CosmoTmt Planet",
     description: "ゲームエンジニア兼音楽クリエイター「CosmoTmt」のポートフォリオサイト。",
     creator: "@cosmotmt",
-    images: ["/og-image.webp"],
+    images: ["/og-image.png"],
   },
   icons: {
     icon: '/icon.png',
@@ -52,7 +55,7 @@ export const metadata: Metadata = {
     apple: '/icon.png',
   },
   alternates: {
-    canonical: "https://cosmotmt.jp",
+    canonical: baseUrl,
   },
 };
 
