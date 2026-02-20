@@ -1,15 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAudio } from "../context/AudioContext";
 
 export default function GlobalPlayer() {
   const { 
-    currentTrack, isPlaying, duration, currentTime, volume,
+    currentTrack, isPlaying, isSeeking, duration, currentTime, volume,
     togglePlay, stopTrack, seek, setIsSeeking, setVolume, formatTime 
   } = useAudio();
 
   const [dragTime, setDragTime] = useState<number | null>(null);
+
+  // Context側でシークが完了（isSeeking: false）したら、ドラッグ表示を終了する
+  useEffect(() => {
+    if (!isSeeking) {
+      setDragTime(null);
+    }
+  }, [isSeeking]);
 
   if (!currentTrack) return null;
 
@@ -22,18 +29,15 @@ export default function GlobalPlayer() {
     if (dragTime !== null) {
       seek(dragTime);
     }
-    setIsSeeking(false);
-    setDragTime(null);
+    // ここで setIsSeeking(false) はしない。Contextの handleSeeked イベントに任せる
   };
 
   const handleChange = (e: React.FormEvent<HTMLInputElement>) => {
     const val = e.currentTarget.valueAsNumber;
     setDragTime(val);
-    // リアルタイムにシークしたい場合はここでもseek(val)を呼べるが、
-    // パフォーマンスと安定性のためMouseUp/TouchEndに任せる
   };
 
-  // シーク中はdragTimeを最優先、そうでない時はcurrentTimeを表示
+  // ドラッグ中またはシーク完了待ちの間は dragTime を表示、それ以外は currentTime
   const displayTime = dragTime !== null ? dragTime : currentTime;
 
   return (
