@@ -23,35 +23,43 @@ export async function GET(
     const fileSize = object.size;
     const range = request.headers.get("range");
     
-    // CORS & Cache headers
+    // MIMEタイプの決定 (ブラウザのシーク安定性に直結)
+    let contentType = object.httpMetadata?.contentType || "application/octet-stream";
+    if (contentType === "application/octet-stream" || contentType === "audio/mpeg") {
+      const ext = filename.split('.').pop()?.toLowerCase();
+      if (ext === "wav") contentType = "audio/wav";
+      else if (ext === "mp3") contentType = "audio/mpeg";
+      else if (ext === "ogg") contentType = "audio/ogg";
+      else if (ext === "m4a") contentType = "audio/mp4";
+    }
+
+    // 共通ヘッダーの設定
     const headers = new Headers();
     headers.set("Access-Control-Allow-Origin", "*");
     headers.set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS");
     headers.set("Access-Control-Allow-Headers", "Range, Content-Type");
     headers.set("Access-Control-Expose-Headers", "Content-Range, Content-Length, Accept-Ranges");
-    headers.set("Accept-Ranges", "bytes");
-    headers.set("Cache-Control", "public, max-age=31536000, immutable");
-    headers.set("Vary", "Origin"); // Rangeを削除
-    headers.set("ETag", object.httpEtag);
-    headers.set("X-Content-Type-Options", "nosniff");
-
-    const contentType = object.httpMetadata?.contentType || "audio/mpeg";
+    headers.set("Accept-Ranges", "bytes"); // これが重要
     headers.set("Content-Type", contentType);
+    headers.set("Cache-Control", "public, max-age=31536000, immutable");
+    headers.set("ETag", object.httpEtag);
 
     if (range && range.startsWith("bytes=")) {
       const parts = range.replace(/bytes=/, "").split("-");
       const startStr = parts[0];
       const endStr = parts[1];
 
-      let start = startStr ? parseInt(startStr, 10) : 0;
-      let end = endStr ? parseInt(endStr, 10) : fileSize - 1;
+      let start = startStr ? parseInt(startStr, 10) : NaN;
+      let end = endStr ? parseInt(endStr, 10) : NaN;
 
       if (isNaN(start) && !isNaN(end)) {
         start = fileSize - end;
         end = fileSize - 1;
+      } else if (!isNaN(start) && isNaN(end)) {
+        end = fileSize - 1;
       }
 
-      if (start >= fileSize || end >= fileSize || start > end) {
+      if (isNaN(start) || start >= fileSize || (end !== undefined && end >= fileSize) || start > end) {
         headers.set("Content-Range", `bytes */${fileSize}`);
         return new NextResponse("Requested range not satisfiable", {
           status: 416,

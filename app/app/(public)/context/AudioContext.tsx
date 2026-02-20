@@ -43,9 +43,10 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const audio = new Audio();
-    audio.crossOrigin = "anonymous"; // CORSを有効化
+    // 同一ドメインからの配信のため crossOrigin は指定せず、ブラウザのデフォルト挙動に任せる
+    // これによりCookieの有無に関わらずRangeリクエストが安定する
     audio.volume = volume;
-    audio.preload = "metadata"; // メタデータを事前に読み込む
+    audio.preload = "auto"; // メタデータだけでなくバッファリングも行う
     audioRef.current = audio;
     
     const handleEnded = () => setIsPlaying(false);
@@ -93,19 +94,29 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
+    // 1. 一旦停止
     audio.pause();
-    // 確実にリセット
+    
+    // 2. フラグリセット
     isSeekingRef.current = false;
     setIsSeekingState(false);
     
-    audio.src = track.audio_url;
-    audio.load();
-    
-    setCurrentTrack(track);
+    // 3. 状態リセット
     setDuration(0);
     setCurrentTime(0);
-
-    audio.play().then(() => setIsPlaying(true)).catch(console.error);
+    setCurrentTrack(track);
+    
+    // 4. 新しいソースの設定とロード
+    audio.src = track.audio_url;
+    audio.currentTime = 0; // 明示的にリセット
+    audio.load();
+    
+    // 5. 再生開始
+    audio.play().then(() => {
+      setIsPlaying(true);
+    }).catch(err => {
+      if (err.name !== "AbortError") console.error("Playback failed:", err);
+    });
   };
 
   const pauseTrack = () => {
