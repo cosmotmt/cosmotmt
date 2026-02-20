@@ -13,7 +13,7 @@ interface Track {
 interface AudioContextType {
   currentTrack: Track | null;
   isPlaying: boolean;
-  isSeeking: boolean; // 追加
+  isSeeking: boolean;
   duration: number;
   currentTime: number;
   volume: number;
@@ -33,7 +33,7 @@ const AudioContext = createContext<AudioContextType | undefined>(undefined);
 export function AudioProvider({ children }: { children: React.ReactNode }) {
   const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isSeekingState, setIsSeekingState] = useState(false); // 追加
+  const [isSeekingState, setIsSeekingState] = useState(false);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [volume, setVolumeState] = useState(0.7);
@@ -43,21 +43,17 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const audio = new Audio();
-    // 同一ドメインからの配信のため crossOrigin は指定せず、ブラウザのデフォルト挙動に任せる
-    // これによりCookieの有無に関わらずRangeリクエストが安定する
     audio.volume = volume;
-    audio.preload = "auto"; // メタデータだけでなくバッファリングも行う
+    audio.preload = "auto";
     audioRef.current = audio;
     
     const handleEnded = () => setIsPlaying(false);
     const handleTimeUpdate = () => {
-      // シーク中（Ref）は currentTime ステートを更新しない
       if (!isSeekingRef.current) {
         setCurrentTime(audio.currentTime);
       }
     };
     const handleSeeked = () => {
-      // ブラウザ側のシークが完了したらフラグを下ろす
       isSeekingRef.current = false;
       setIsSeekingState(false);
       setCurrentTime(audio.currentTime);
@@ -77,6 +73,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     return () => {
       audio.pause();
       audio.src = "";
+      audio.load();
       audio.removeEventListener("ended", handleEnded);
       audio.removeEventListener("timeupdate", handleTimeUpdate);
       audio.removeEventListener("seeked", handleSeeked);
@@ -94,28 +91,24 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // 1. 一旦停止
+    // 以前の状態をリセット
     audio.pause();
-    
-    // 2. フラグリセット
     isSeekingRef.current = false;
     setIsSeekingState(false);
     
-    // 3. 状態リセット
-    setDuration(0);
-    setCurrentTime(0);
-    setCurrentTrack(track);
-    
-    // 4. 新しいソースの設定とロード
+    // ソースをセットして即座にロードを開始
     audio.src = track.audio_url;
-    audio.currentTime = 0; // 明示的にリセット
     audio.load();
     
-    // 5. 再生開始
+    setCurrentTrack(track);
+    setDuration(0);
+    setCurrentTime(0);
+
+    // 再生
     audio.play().then(() => {
       setIsPlaying(true);
     }).catch(err => {
-      if (err.name !== "AbortError") console.error("Playback failed:", err);
+      if (err.name !== "AbortError") console.error("Playback error:", err);
     });
   };
 
@@ -137,6 +130,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.src = "";
+      audioRef.current.load();
     }
     setCurrentTrack(null);
     setIsPlaying(false);
@@ -147,13 +141,19 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   };
 
   const seek = (time: number) => {
-    if (!audioRef.current) return;
-    // シーク開始
+    if (!audioRef.current || isNaN(time)) return;
+    
     isSeekingRef.current = true;
     setIsSeekingState(true);
     
-    audioRef.current.currentTime = time;
-    setCurrentTime(time);
+    try {
+      audioRef.current.currentTime = time;
+      setCurrentTime(time);
+    } catch (e) {
+      console.error("Seek failed:", e);
+      isSeekingRef.current = false;
+      setIsSeekingState(false);
+    }
   };
 
   const setIsSeeking = (seeking: boolean) => {

@@ -4,7 +4,6 @@ export const runtime = "edge";
 
 /**
  * ファイルの取得 (GET) - Rangeリクエスト対応版
- * 公開実績用のため、認証なしでアクセス可能
  */
 export async function GET(
   request: NextRequest,
@@ -21,9 +20,9 @@ export async function GET(
     if (!object) return new NextResponse("File not found", { status: 404 });
 
     const fileSize = object.size;
-    const range = request.headers.get("range");
+    const rangeHeader = request.headers.get("range") || request.headers.get("Range");
     
-    // MIMEタイプの決定 (ブラウザのシーク安定性に直結)
+    // MIMEタイプの決定
     let contentType = object.httpMetadata?.contentType || "application/octet-stream";
     if (contentType === "application/octet-stream" || contentType === "audio/mpeg") {
       const ext = filename.split('.').pop()?.toLowerCase();
@@ -33,37 +32,30 @@ export async function GET(
       else if (ext === "m4a") contentType = "audio/mp4";
     }
 
-    // 共通ヘッダーの設定
-    const headers = new Headers();
-    headers.set("Access-Control-Allow-Origin", "*");
-    headers.set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS");
-    headers.set("Access-Control-Allow-Headers", "Range, Content-Type");
-    headers.set("Access-Control-Expose-Headers", "Content-Range, Content-Length, Accept-Ranges");
-    headers.set("Accept-Ranges", "bytes"); // これが重要
-    headers.set("Content-Type", contentType);
-    headers.set("Cache-Control", "public, max-age=31536000, immutable");
-    headers.set("ETag", object.httpEtag);
+    // 共通レスポンスヘッダー
+    const commonHeaders = new Headers();
+    commonHeaders.set("Access-Control-Allow-Origin", "*");
+    commonHeaders.set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS");
+    commonHeaders.set("Access-Control-Allow-Headers", "Range, Content-Type");
+    commonHeaders.set("Access-Control-Expose-Headers", "Content-Range, Content-Length, Accept-Ranges");
+    commonHeaders.set("Accept-Ranges", "bytes");
+    commonHeaders.set("Content-Type", contentType);
+    commonHeaders.set("ETag", object.httpEtag);
+    commonHeaders.set("Cache-Control", "public, max-age=31536000, immutable");
+    commonHeaders.set("X-Content-Type-Options", "nosniff");
 
-    if (range && range.startsWith("bytes=")) {
-      const parts = range.replace(/bytes=/, "").split("-");
-      const startStr = parts[0];
-      const endStr = parts[1];
+    if (rangeHeader && rangeHeader.startsWith("bytes=")) {
+      const parts = rangeHeader.replace(/bytes=/, "").split("-");
+      const start = parseInt(parts[0], 10);
+      const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
 
-      let start = startStr ? parseInt(startStr, 10) : NaN;
-      let end = endStr ? parseInt(endStr, 10) : NaN;
-
-      if (isNaN(start) && !isNaN(end)) {
-        start = fileSize - end;
-        end = fileSize - 1;
-      } else if (!isNaN(start) && isNaN(end)) {
-        end = fileSize - 1;
-      }
-
-      if (isNaN(start) || start >= fileSize || (end !== undefined && end >= fileSize) || start > end) {
-        headers.set("Content-Range", `bytes */${fileSize}`);
+      if (isNaN(start) || start >= fileSize || end >= fileSize || start > end) {
         return new NextResponse("Requested range not satisfiable", {
           status: 416,
-          headers,
+          headers: {
+            ...Object.fromEntries(commonHeaders.entries()),
+            "Content-Range": `bytes */${fileSize}`
+          },
         });
       }
 
@@ -75,24 +67,27 @@ export async function GET(
         return new NextResponse("File not found", { status: 404 });
       }
 
-      headers.set("Content-Range", `bytes ${start}-${end}/${fileSize}`);
-      headers.set("Content-Length", (end - start + 1).toString());
+      const responseHeaders = new Headers(commonHeaders);
+      responseHeaders.set("Content-Range", `bytes ${start}-${end}/${fileSize}`);
+      responseHeaders.set("Content-Length", (end - start + 1).toString());
 
       return new NextResponse(chunk.body, {
         status: 206,
-        headers,
+        headers: responseHeaders,
       });
     } else {
+      // Range指定がない場合（初回読み込み）
       const fullObject = await bucket.get(filename);
       if (!fullObject || !fullObject.body) {
         return new NextResponse("File not found", { status: 404 });
       }
 
-      headers.set("Content-Length", fileSize.toString());
+      const responseHeaders = new Headers(commonHeaders);
+      responseHeaders.set("Content-Length", fileSize.toString());
 
       return new NextResponse(fullObject.body, {
         status: 200,
-        headers,
+        headers: responseHeaders,
       });
     }
   } catch (err) {
@@ -118,16 +113,12 @@ export async function OPTIONS() {
 
 /**
  * ファイルの削除 (DELETE)
- * 管理者のみ実行可能
  */
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ filename: string }> }
 ) {
-  // 動的インポートを使用してGET時のフットプリントを減らす
   const { verifySession } = await import("@/app/(admin)/api/auth");
-  
-  // セッションチェック
   if (!(await verifySession())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
