@@ -26,8 +26,8 @@ export default function GlobalPlayer() {
     setDragTime(null);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setDragTime(Number(e.target.value));
+  const handleChange = (e: React.FormEvent<HTMLInputElement>) => {
+    setDragTime(e.currentTarget.valueAsNumber);
   };
 
   const displayTime = dragTime !== null ? dragTime : currentTime;
@@ -91,24 +91,29 @@ export default function GlobalPlayer() {
               </div>
               
               {/* System Gauge (Seek Bar) */}
-              <div className="relative h-1.5 bg-white/5 border border-white/5 overflow-hidden group cursor-pointer">
+              <div className="relative h-6 md:h-8 flex items-center group cursor-pointer">
                 <input
                   type="range"
                   min="0"
                   max={duration || 0}
+                  step="any"
                   value={displayTime}
                   onMouseDown={handleMouseDown}
                   onMouseUp={handleMouseUp}
                   onTouchStart={handleMouseDown}
                   onTouchEnd={handleMouseUp}
+                  onTouchCancel={handleMouseUp}
+                  onInput={handleChange}
                   onChange={handleChange}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20 touch-none appearance-none bg-transparent m-0 p-0 border-none outline-none"
                 />
-                <div 
-                  className="absolute top-0 left-0 h-full bg-red-500 transition-all duration-100"
-                  style={{ width: `${duration > 0 ? (displayTime / duration) * 100 : 0}%` }}
-                >
-                  <div className="absolute inset-0 opacity-30" style={{ backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,0,0,0.2) 2px, rgba(0,0,0,0.2) 4px)' }}></div>
+                <div className="relative w-full h-1.5 bg-white/10 border border-white/5 overflow-hidden">
+                  <div 
+                    className="absolute top-0 left-0 h-full bg-red-500 transition-all duration-100"
+                    style={{ width: `${duration > 0 ? (displayTime / duration) * 100 : 0}%` }}
+                  >
+                    <div className="absolute inset-0 opacity-30" style={{ backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,0,0,0.2) 2px, rgba(0,0,0,0.2) 4px)' }}></div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -130,8 +135,8 @@ export default function GlobalPlayer() {
                         max="1"
                         step="0.01"
                         value={volume}
-                        onChange={(e) => setVolume(Number(e.target.value))}
-                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
+                        onChange={(e) => setVolume(e.currentTarget.valueAsNumber)}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20 appearance-none bg-transparent"
                       />
                       <div 
                         className="absolute top-0 left-0 h-full bg-gray-400"
