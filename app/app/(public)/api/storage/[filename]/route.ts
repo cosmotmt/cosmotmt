@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifySession } from "../../auth";
+import { verifySession } from "@/app/(admin)/api/auth";
 
 export const runtime = "edge";
 
