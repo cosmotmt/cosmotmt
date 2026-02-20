@@ -86,12 +86,16 @@ export default function GlobalPlayer() {
                   {currentTrack.title}
                 </h4>
                 <div className="text-[9px] md:text-[10px] text-gray-500 tracking-tighter whitespace-nowrap">
-                  {formatTime(displayTime)} / {formatTime(duration)}
+                  {duration > 0 ? (
+                    <>{formatTime(displayTime)} / {formatTime(duration)}</>
+                  ) : (
+                    <span className="animate-pulse">Loading...</span>
+                  )}
                 </div>
               </div>
               
               {/* System Gauge (Seek Bar) */}
-              <div className="relative h-6 md:h-8 flex items-center group cursor-pointer">
+              <div className={`relative h-6 md:h-8 flex items-center group ${duration > 0 ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'}`}>
                 <input
                   type="range"
                   min="0"
@@ -105,7 +109,8 @@ export default function GlobalPlayer() {
                   onTouchCancel={handleMouseUp}
                   onInput={handleChange}
                   onChange={handleChange}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20 touch-none appearance-none bg-transparent m-0 p-0 border-none outline-none"
+                  disabled={duration <= 0}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20 touch-none appearance-none bg-transparent m-0 p-0 border-none outline-none disabled:cursor-not-allowed"
                   style={{ WebkitAppearance: 'none' }}
                 />
                 <div className="relative w-full h-1.5 bg-white/10 border border-white/5 overflow-hidden">

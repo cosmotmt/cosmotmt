@@ -18,25 +18,35 @@ export async function GET(
       return new NextResponse("Storage not found", { status: 500 });
     }
 
+    const object = await bucket.head(filename);
+    if (!object) return new NextResponse("File not found", { status: 404 });
+
+    const fileSize = object.size;
     const range = request.headers.get("range");
     
-    // CORSヘッダーの共通設定
+    // CORS headers
     const commonHeaders = new Headers();
     commonHeaders.set("Access-Control-Allow-Origin", "*");
     commonHeaders.set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS");
     commonHeaders.set("Access-Control-Allow-Headers", "Range, Content-Type");
     commonHeaders.set("Access-Control-Expose-Headers", "Content-Range, Content-Length, Accept-Ranges");
+    commonHeaders.set("Accept-Ranges", "bytes");
 
-    if (range) {
-      const object = await bucket.head(filename);
-      if (!object) return new NextResponse("File not found", { status: 404 });
-
-      const fileSize = object.size;
+    if (range && range.startsWith("bytes=")) {
       const parts = range.replace(/bytes=/, "").split("-");
-      const start = parseInt(parts[0], 10);
-      const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+      const startStr = parts[0];
+      const endStr = parts[1];
 
-      if (start >= fileSize || end >= fileSize) {
+      let start = startStr ? parseInt(startStr, 10) : 0;
+      let end = endStr ? parseInt(endStr, 10) : fileSize - 1;
+
+      // Handle cases like "bytes=-500" (last 500 bytes)
+      if (isNaN(start) && !isNaN(end)) {
+        start = fileSize - end;
+        end = fileSize - 1;
+      }
+
+      if (start >= fileSize || end >= fileSize || start > end) {
         return new NextResponse("Requested range not satisfiable", {
           status: 416,
           headers: { 
@@ -56,30 +66,28 @@ export async function GET(
 
       const headers = new Headers(commonHeaders);
       headers.set("Content-Range", `bytes ${start}-${end}/${fileSize}`);
-      headers.set("Accept-Ranges", "bytes");
       headers.set("Content-Length", (end - start + 1).toString());
-      headers.set("Content-Type", chunk.httpMetadata?.contentType || "application/octet-stream");
+      headers.set("Content-Type", object.httpMetadata?.contentType || "application/octet-stream");
       headers.set("Cache-Control", "public, max-age=31536000, immutable");
-      headers.set("ETag", chunk.httpEtag);
+      headers.set("ETag", object.httpEtag);
 
       return new NextResponse(chunk.body, {
         status: 206,
         headers,
       });
     } else {
-      const object = await bucket.get(filename);
-      if (!object || !object.body) {
+      const fullObject = await bucket.get(filename);
+      if (!fullObject || !fullObject.body) {
         return new NextResponse("File not found", { status: 404 });
       }
 
       const headers = new Headers(commonHeaders);
-      headers.set("Accept-Ranges", "bytes");
-      headers.set("Content-Length", object.size.toString());
+      headers.set("Content-Length", fileSize.toString());
       headers.set("Content-Type", object.httpMetadata?.contentType || "application/octet-stream");
       headers.set("Cache-Control", "public, max-age=31536000, immutable");
       headers.set("ETag", object.httpEtag);
 
-      return new NextResponse(object.body, {
+      return new NextResponse(fullObject.body, {
         headers,
       });
     }

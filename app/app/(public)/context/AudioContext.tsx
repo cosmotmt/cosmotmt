@@ -41,7 +41,6 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const audio = new Audio();
-    audio.crossOrigin = "anonymous";
     audio.volume = volume;
     audioRef.current = audio;
     
@@ -52,6 +51,11 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       }
     };
 
+    const handleSeeked = () => {
+      isSeekingRef.current = false;
+      setCurrentTime(audio.currentTime);
+    };
+
     const updateDuration = () => {
       if (audio.duration && audio.duration !== Infinity && !isNaN(audio.duration)) {
         setDuration(audio.duration);
@@ -60,6 +64,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
 
     audio.addEventListener("ended", handleEnded);
     audio.addEventListener("timeupdate", handleTimeUpdate);
+    audio.addEventListener("seeked", handleSeeked);
     audio.addEventListener("loadedmetadata", updateDuration);
     audio.addEventListener("durationchange", updateDuration);
     audio.addEventListener("canplaythrough", updateDuration);
@@ -70,6 +75,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       audio.load();
       audio.removeEventListener("ended", handleEnded);
       audio.removeEventListener("timeupdate", handleTimeUpdate);
+      audio.removeEventListener("seeked", handleSeeked);
       audio.removeEventListener("loadedmetadata", updateDuration);
       audio.removeEventListener("durationchange", updateDuration);
       audio.removeEventListener("canplaythrough", updateDuration);
@@ -87,6 +93,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       setIsPlaying(false);
       
       // 2. 状態リセット
+      setCurrentTrack(track); // 先にトラック情報を更新
       setDuration(0);
       setCurrentTime(0);
       
@@ -98,12 +105,13 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       const playPromise = audioRef.current.play();
       if (playPromise !== undefined) {
         playPromise.then(() => {
-          setCurrentTrack(track);
           setIsPlaying(true);
         }).catch(error => {
           if (error.name !== "AbortError") {
             console.error("Playback failed:", error);
           }
+          // エラー時は状態を戻すなどの処理が必要かもしれないが、
+          // 一旦そのままにする
         });
       }
     }
@@ -137,17 +145,24 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   };
 
   const seek = (time: number) => {
-    if (audioRef.current && audioRef.current.readyState >= 1) {
-      try {
-        audioRef.current.currentTime = time;
-        setCurrentTime(time);
-      } catch (e) {
-        // Ignore
-      }
+    if (!audioRef.current || !audioRef.current.src) return;
+    
+    try {
+      // シーク開始時に確実にフラグを立てる
+      isSeekingRef.current = true;
+      audioRef.current.currentTime = time;
+      setCurrentTime(time);
+    } catch (e) {
+      console.error("Seek failed:", e);
+      isSeekingRef.current = false;
     }
   };
 
   const setIsSeeking = (seeking: boolean) => {
+    // seekingがfalseになるのは、基本的にseekedイベント発生時のみにする
+    // ただし、もしユーザーがシークせずにマウスを離した場合のために、
+    // ここでも設定できるようにしておくが、currentTimeの更新抑制を確実にするため、
+    // 実際にseek()が呼ばれた場合はイベントを待つ
     isSeekingRef.current = seeking;
   };
 
