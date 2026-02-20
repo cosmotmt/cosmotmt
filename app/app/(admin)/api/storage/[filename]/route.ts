@@ -51,6 +51,7 @@ export async function GET(
       headers.set("Content-Type", chunk.httpMetadata?.contentType || "application/octet-stream");
       headers.set("Cache-Control", "public, max-age=31536000, immutable");
       headers.set("ETag", chunk.httpEtag);
+      headers.set("Access-Control-Allow-Origin", "*");
 
       return new NextResponse(chunk.body, {
         status: 206,
@@ -68,6 +69,7 @@ export async function GET(
       headers.set("Content-Type", object.httpMetadata?.contentType || "application/octet-stream");
       headers.set("Cache-Control", "public, max-age=31536000, immutable");
       headers.set("ETag", object.httpEtag);
+      headers.set("Access-Control-Allow-Origin", "*");
 
       return new NextResponse(object.body, {
         headers,
