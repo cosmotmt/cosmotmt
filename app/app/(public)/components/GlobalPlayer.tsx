@@ -106,6 +106,7 @@ export default function GlobalPlayer() {
                   onInput={handleChange}
                   onChange={handleChange}
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20 touch-none appearance-none bg-transparent m-0 p-0 border-none outline-none"
+                  style={{ WebkitAppearance: 'none' }}
                 />
                 <div className="relative w-full h-1.5 bg-white/10 border border-white/5 overflow-hidden">
                   <div 

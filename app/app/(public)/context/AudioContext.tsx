@@ -41,6 +41,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const audio = new Audio();
+    audio.crossOrigin = "anonymous";
     audio.volume = volume;
     audioRef.current = audio;
     
