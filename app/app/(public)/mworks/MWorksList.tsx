@@ -79,7 +79,9 @@ export default function MWorksList({ initialWorks }: MWorksListProps) {
                 } ${isCurrent && isPlaying ? 'opacity-100' : 'opacity-100 md:opacity-0 md:group-hover:opacity-100'}`}>
                   <button
                     onClick={(e) => handlePlayClick(e, work)}
-                    className="w-full h-full flex items-center justify-center text-white hover:text-red-500 transition-colors"
+                    className={`w-full h-full flex items-center justify-center text-white hover:text-red-500 transition-colors ${
+                      hasAudio ? 'cursor-pointer' : 'cursor-default'
+                    }`}
                   >
                     {isCurrent && isPlaying ? (
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="currentColor" viewBox="0 0 24 24">

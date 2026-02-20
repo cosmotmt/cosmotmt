@@ -66,7 +66,7 @@ export default function GlobalPlayer() {
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-slate-700 text-[8px] font-black uppercase">No Art</div>
               )}
-              <div className="absolute inset-0 flex items-center justify-center bg-black/40 transition-opacity duration-300 opacity-100 md:opacity-0 md:group-hover/player:opacity-100">
+              <div className="absolute inset-0 flex items-center justify-center bg-black/40 transition-opacity duration-300 opacity-100 md:opacity-0 md:group-hover/player:opacity-100 cursor-pointer">
                 {isPlaying ? (
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white group-hover/thumb:text-red-500 transition-colors" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
