@@ -183,10 +183,10 @@ export default function MusicWorkModal({ isOpen, onClose, work }: MusicWorkModal
                   <div 
                     onClick={handlePlayClick}
                     className={`absolute inset-0 flex items-center justify-center bg-black/40 transition-opacity cursor-pointer ${
-                      isCurrent && isPlaying ? "opacity-100" : "opacity-0 group-hover/cover:opacity-100"
+                      isCurrent && isPlaying ? "opacity-100" : "opacity-100 md:opacity-0 md:group-hover/cover:opacity-100"
                     }`}
                   >
-                    <div className="w-16 h-16 flex items-center justify-center bg-white text-slate-950 rounded-full shadow-2xl transform transition-all hover:scale-110 group-hover/cover:bg-red-500 group-hover/cover:text-white">
+                    <div className="w-16 h-16 flex items-center justify-center bg-white text-slate-950 rounded-full shadow-2xl transform transition-all hover:scale-110 md:group-hover/cover:bg-red-500 md:group-hover/cover:text-white">
                       {isCurrent && isPlaying ? (
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="currentColor" viewBox="0 0 24 24">
                           <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
