@@ -24,13 +24,17 @@ export async function GET(
     const fileSize = object.size;
     const range = request.headers.get("range");
     
-    // CORS headers
-    const commonHeaders = new Headers();
-    commonHeaders.set("Access-Control-Allow-Origin", "*");
-    commonHeaders.set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS");
-    commonHeaders.set("Access-Control-Allow-Headers", "Range, Content-Type");
-    commonHeaders.set("Access-Control-Expose-Headers", "Content-Range, Content-Length, Accept-Ranges");
-    commonHeaders.set("Accept-Ranges", "bytes");
+    // CORS & Cache headers
+    const headers = new Headers();
+    headers.set("Access-Control-Allow-Origin", "*");
+    headers.set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS");
+    headers.set("Access-Control-Allow-Headers", "Range, Content-Type");
+    headers.set("Access-Control-Expose-Headers", "Content-Range, Content-Length, Accept-Ranges");
+    headers.set("Accept-Ranges", "bytes");
+    headers.set("Cache-Control", "public, max-age=31536000, immutable");
+    headers.set("Vary", "Origin, Range"); // OriginとRangeによってキャッシュを分ける
+    headers.set("ETag", object.httpEtag);
+    headers.set("Content-Type", object.httpMetadata?.contentType || "application/octet-stream");
 
     if (range && range.startsWith("bytes=")) {
       const parts = range.replace(/bytes=/, "").split("-");
@@ -40,19 +44,16 @@ export async function GET(
       let start = startStr ? parseInt(startStr, 10) : 0;
       let end = endStr ? parseInt(endStr, 10) : fileSize - 1;
 
-      // Handle cases like "bytes=-500" (last 500 bytes)
       if (isNaN(start) && !isNaN(end)) {
         start = fileSize - end;
         end = fileSize - 1;
       }
 
       if (start >= fileSize || end >= fileSize || start > end) {
+        headers.set("Content-Range", `bytes */${fileSize}`);
         return new NextResponse("Requested range not satisfiable", {
           status: 416,
-          headers: { 
-            ...Object.fromEntries(commonHeaders.entries()),
-            "Content-Range": `bytes */${fileSize}` 
-          },
+          headers,
         });
       }
 
@@ -64,12 +65,8 @@ export async function GET(
         return new NextResponse("File not found", { status: 404 });
       }
 
-      const headers = new Headers(commonHeaders);
       headers.set("Content-Range", `bytes ${start}-${end}/${fileSize}`);
       headers.set("Content-Length", (end - start + 1).toString());
-      headers.set("Content-Type", object.httpMetadata?.contentType || "application/octet-stream");
-      headers.set("Cache-Control", "public, max-age=31536000, immutable");
-      headers.set("ETag", object.httpEtag);
 
       return new NextResponse(chunk.body, {
         status: 206,
@@ -81,13 +78,10 @@ export async function GET(
         return new NextResponse("File not found", { status: 404 });
       }
 
-      const headers = new Headers(commonHeaders);
       headers.set("Content-Length", fileSize.toString());
-      headers.set("Content-Type", object.httpMetadata?.contentType || "application/octet-stream");
-      headers.set("Cache-Control", "public, max-age=31536000, immutable");
-      headers.set("ETag", object.httpEtag);
 
       return new NextResponse(fullObject.body, {
+        status: 200,
         headers,
       });
     }

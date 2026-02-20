@@ -39,81 +39,78 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const isSeekingRef = useRef(false);
 
-  useEffect(() => {
+  // クリーンアップ関数
+  const cleanupAudio = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.removeEventListener("ended", handleEnded);
+      audioRef.current.removeEventListener("timeupdate", handleTimeUpdate);
+      audioRef.current.removeEventListener("seeked", handleSeeked);
+      audioRef.current.removeEventListener("loadedmetadata", updateDuration);
+      audioRef.current.removeEventListener("durationchange", updateDuration);
+      audioRef.current.removeAttribute("src");
+      audioRef.current.load();
+      audioRef.current = null;
+    }
+  };
+
+  const handleEnded = () => setIsPlaying(false);
+  const handleTimeUpdate = () => {
+    if (audioRef.current && !isSeekingRef.current) {
+      // わずかな差分であれば更新をスキップして、ステート更新による再レンダリングを抑制する
+      const newTime = audioRef.current.currentTime;
+      if (Math.abs(currentTime - newTime) > 0.1) {
+        setCurrentTime(newTime);
+      }
+    }
+  };
+  const handleSeeked = () => {
+    isSeekingRef.current = false;
+    if (audioRef.current) {
+      setCurrentTime(audioRef.current.currentTime);
+    }
+  };
+  const updateDuration = () => {
+    if (audioRef.current && audioRef.current.duration && audioRef.current.duration !== Infinity && !isNaN(audioRef.current.duration)) {
+      setDuration(audioRef.current.duration);
+    }
+  };
+
+  const playTrack = (track: Track) => {
+    if (!track.audio_url) return;
+
+    if (currentTrack?.id === track.id) {
+      togglePlay();
+      return;
+    }
+
+    // 以前の再生を停止・削除
+    cleanupAudio();
+
+    // 新しいAudioインスタンス
     const audio = new Audio();
+    audio.src = track.audio_url;
     audio.volume = volume;
-    audioRef.current = audio;
+    audio.preload = "metadata";
     
-    const handleEnded = () => setIsPlaying(false);
-    const handleTimeUpdate = () => {
-      if (!isSeekingRef.current) {
-        setCurrentTime(audio.currentTime);
-      }
-    };
-
-    const handleSeeked = () => {
-      isSeekingRef.current = false;
-      setCurrentTime(audio.currentTime);
-    };
-
-    const updateDuration = () => {
-      if (audio.duration && audio.duration !== Infinity && !isNaN(audio.duration)) {
-        setDuration(audio.duration);
-      }
-    };
-
     audio.addEventListener("ended", handleEnded);
     audio.addEventListener("timeupdate", handleTimeUpdate);
     audio.addEventListener("seeked", handleSeeked);
     audio.addEventListener("loadedmetadata", updateDuration);
     audio.addEventListener("durationchange", updateDuration);
-    audio.addEventListener("canplaythrough", updateDuration);
 
-    return () => {
-      audio.pause();
-      audio.removeAttribute("src");
-      audio.load();
-      audio.removeEventListener("ended", handleEnded);
-      audio.removeEventListener("timeupdate", handleTimeUpdate);
-      audio.removeEventListener("seeked", handleSeeked);
-      audio.removeEventListener("loadedmetadata", updateDuration);
-      audio.removeEventListener("durationchange", updateDuration);
-      audio.removeEventListener("canplaythrough", updateDuration);
-    };
-  }, []);
+    audioRef.current = audio;
+    setCurrentTrack(track);
+    setDuration(0);
+    setCurrentTime(0);
 
-  const playTrack = (track: Track) => {
-    if (!audioRef.current || !track.audio_url) return;
-
-    if (currentTrack?.id === track.id) {
-      togglePlay();
-    } else {
-      // 1. 確実に停止
-      audioRef.current.pause();
-      setIsPlaying(false);
-      
-      // 2. 状態リセット
-      setCurrentTrack(track); // 先にトラック情報を更新
-      setDuration(0);
-      setCurrentTime(0);
-      
-      // 3. ソースの切り替え
-      audioRef.current.src = track.audio_url;
-      audioRef.current.load(); // WAVなどのために明示的にロード
-      
-      // 4. 再生
-      const playPromise = audioRef.current.play();
-      if (playPromise !== undefined) {
-        playPromise.then(() => {
-          setIsPlaying(true);
-        }).catch(error => {
-          if (error.name !== "AbortError") {
-            console.error("Playback failed:", error);
-          }
-          // エラー時は状態を戻すなどの処理が必要かもしれないが、
-          // 一旦そのままにする
-        });
-      }
+    const playPromise = audio.play();
+    if (playPromise !== undefined) {
+      playPromise.then(() => {
+        setIsPlaying(true);
+      }).catch(error => {
+        if (error.name !== "AbortError") console.error("Playback failed:", error);
+      });
     }
   };
 
@@ -123,7 +120,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   };
 
   const resumeTrack = () => {
-    if (!audioRef.current || !audioRef.current.src) return;
+    if (!audioRef.current?.src) return;
     audioRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
   };
 
@@ -133,11 +130,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   };
 
   const stopTrack = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.removeAttribute("src"); // 空文字ではなく属性削除
-      audioRef.current.load(); // 状態をクリア
-    }
+    cleanupAudio();
     setCurrentTrack(null);
     setIsPlaying(false);
     setDuration(0);
@@ -145,10 +138,8 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   };
 
   const seek = (time: number) => {
-    if (!audioRef.current || !audioRef.current.src) return;
-    
+    if (!audioRef.current?.src) return;
     try {
-      // シーク開始時に確実にフラグを立てる
       isSeekingRef.current = true;
       audioRef.current.currentTime = time;
       setCurrentTime(time);
@@ -159,19 +150,17 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   };
 
   const setIsSeeking = (seeking: boolean) => {
-    // seekingがfalseになるのは、基本的にseekedイベント発生時のみにする
-    // ただし、もしユーザーがシークせずにマウスを離した場合のために、
-    // ここでも設定できるようにしておくが、currentTimeの更新抑制を確実にするため、
-    // 実際にseek()が呼ばれた場合はイベントを待つ
     isSeekingRef.current = seeking;
   };
 
   const setVolume = (v: number) => {
-    if (audioRef.current) {
-      audioRef.current.volume = v;
-      setVolumeState(v);
-    }
+    setVolumeState(v);
+    if (audioRef.current) audioRef.current.volume = v;
   };
+
+  useEffect(() => {
+    return () => cleanupAudio();
+  }, []);
 
   const formatTime = (time: number) => {
     if (!time || isNaN(time) || time === Infinity) return "0:00";

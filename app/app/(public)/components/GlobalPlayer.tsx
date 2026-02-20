@@ -27,9 +27,13 @@ export default function GlobalPlayer() {
   };
 
   const handleChange = (e: React.FormEvent<HTMLInputElement>) => {
-    setDragTime(e.currentTarget.valueAsNumber);
+    const val = e.currentTarget.valueAsNumber;
+    setDragTime(val);
+    // リアルタイムにシークしたい場合はここでもseek(val)を呼べるが、
+    // パフォーマンスと安定性のためMouseUp/TouchEndに任せる
   };
 
+  // シーク中はdragTimeを最優先、そうでない時はcurrentTimeを表示
   const displayTime = dragTime !== null ? dragTime : currentTime;
 
   return (
