@@ -20,6 +20,13 @@ export async function GET(
 
     const range = request.headers.get("range");
     
+    // CORSヘッダーの共通設定
+    const commonHeaders = new Headers();
+    commonHeaders.set("Access-Control-Allow-Origin", "*");
+    commonHeaders.set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS");
+    commonHeaders.set("Access-Control-Allow-Headers", "Range, Content-Type");
+    commonHeaders.set("Access-Control-Expose-Headers", "Content-Range, Content-Length, Accept-Ranges");
+
     if (range) {
       const object = await bucket.head(filename);
       if (!object) return new NextResponse("File not found", { status: 404 });
@@ -32,7 +39,10 @@ export async function GET(
       if (start >= fileSize || end >= fileSize) {
         return new NextResponse("Requested range not satisfiable", {
           status: 416,
-          headers: { "Content-Range": `bytes */${fileSize}` },
+          headers: { 
+            ...Object.fromEntries(commonHeaders.entries()),
+            "Content-Range": `bytes */${fileSize}` 
+          },
         });
       }
 
@@ -44,14 +54,13 @@ export async function GET(
         return new NextResponse("File not found", { status: 404 });
       }
 
-      const headers = new Headers();
+      const headers = new Headers(commonHeaders);
       headers.set("Content-Range", `bytes ${start}-${end}/${fileSize}`);
       headers.set("Accept-Ranges", "bytes");
       headers.set("Content-Length", (end - start + 1).toString());
       headers.set("Content-Type", chunk.httpMetadata?.contentType || "application/octet-stream");
       headers.set("Cache-Control", "public, max-age=31536000, immutable");
       headers.set("ETag", chunk.httpEtag);
-      headers.set("Access-Control-Allow-Origin", "*");
 
       return new NextResponse(chunk.body, {
         status: 206,
@@ -63,13 +72,12 @@ export async function GET(
         return new NextResponse("File not found", { status: 404 });
       }
 
-      const headers = new Headers();
+      const headers = new Headers(commonHeaders);
       headers.set("Accept-Ranges", "bytes");
       headers.set("Content-Length", object.size.toString());
       headers.set("Content-Type", object.httpMetadata?.contentType || "application/octet-stream");
       headers.set("Cache-Control", "public, max-age=31536000, immutable");
       headers.set("ETag", object.httpEtag);
-      headers.set("Access-Control-Allow-Origin", "*");
 
       return new NextResponse(object.body, {
         headers,
@@ -79,6 +87,21 @@ export async function GET(
     console.error("Storage GET error:", err);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
+}
+
+/**
+ * OPTIONSリクエスト (CORSプリフライト用)
+ */
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
+      "Access-Control-Allow-Headers": "Range, Content-Type",
+      "Access-Control-Max-Age": "86400",
+    },
+  });
 }
 
 /**
